@@ -1,0 +1,25 @@
+#!/bin/bash
+
+overviewer_path=/opt/mcmap
+ov_bin_path=/opt/mc-overviewer
+minecraft_path=/opt/minecraft
+this_pwd=`pwd`
+
+cd $ov_bin_path
+
+# clone overviewer tools
+
+git clone https://github.com/overviewer/Minecraft-Overviewer.git
+ln -s $ov_bin_path/Minecraft-Overviewer/overviewer.py  /usr/local/bin/mc-overviewer
+
+cd $minecraft_path
+
+# copy minecraftctl
+cp ./minecraftctl /usr/local/bin/minecraftctl
+chmod u+x minecraftctl
+
+# exit
+
+cd $this_pwd
+
+echo "Done !!!"

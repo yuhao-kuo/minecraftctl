@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# auth: yuhao
+# date: 2019.07.25
+# version: v1.0
+
+server_name='minecraft_server'
+exec_name='minecraft_server_v1.14.4.jar'
+minecraft_path='/srv/minecraft'
+process=`sudo /usr/bin/screen -ls | grep ${server_name} | awk '{print $1}' | cut -d \. -f 2`
+runname=`echo ${minecraft_path}/${exec_name} | sed 's/\/\//\//g'`
+argslen=$#
+args1=$@
+tmp=`pwd`
+
+start() {
+	if [ -z "$process" ]; then
+		echo "Start Service."
+		cd $minecraft_path
+		sudo /usr/bin/screen -DmS $server_name /usr/bin/java -Xms1024M -Xmx2048M -jar ${runname} nogui &
+		cd $tmp
+	else
+		echo "${server_name} is running !"
+		return
+	fi
+}
+
+stop() {
+	if [ -z "$process" ]; then
+		echo "${server_name} not running !"
+		return
+	fi
+	cd $minecraft_path
+	echo -n "Stop Service ... "
+	sudo /usr/bin/screen -S $server_name -p 0 -X eval 'stuff "stop"\\015'
+	echo "[Done]"
+	cd $tmp
+}
+
+savemap() {
+	if [ -z "$process" ]; then
+		echo "${server_name} not running !"
+		return
+	fi
+	cd $minecraft_path
+	echo -n "Save World ... "
+	sudo /usr/bin/screen -S $server_name -p 0 -X eval 'stuff "save-all"\\015'
+	echo "[Done]"
+	cd $tmp
+}
+
+status() {
+	if [ -z "$process" ]; then
+		echo "${server_name} not running !"
+		return
+	fi
+	sudo tail -n $1 ${minecraft_path}/logs/latest.log
+}
+
+cmd() {
+	if [ -z "$process" ]; then
+		echo "${server_name} not running !"
+		return
+	fi
+	cd $minecraft_path
+	endcode='"\\015'
+	_cmd="'stuff \""$args1
+	run="eval $_cmd"
+	bash -c "sudo screen -S ${server_name} -p 0 -X $run$endcode'"
+	cd $tmp
+}
+
+
+list() {
+	if [ -z "$process" ]; then
+		echo "${server_name} not running !"
+		return
+	fi
+	cd $minecraft_path
+	sudo /usr/bin/screen -S $server_name -p 0 -X eval 'stuff "list"\\015'
+	sleep 0.1
+	sudo tail -n 1 ${minecraft_path}/logs/latest.log | cut -d ':' -f 5 | sed 's/^\ //g'
+	cd $tmp
+}
+
+
+case ${1} in
+	"start")
+		start
+		;;
+	"stop")
+		stop
+		;;
+	"status")
+		test $argslen -gt 1 && status $2 || status 5
+		;;
+	"save")
+		savemap
+		;;
+	"help")
+		echo "Usage: {start|stop|save|command \"minecraft server op string\"}"
+		;;
+	"list")
+		list
+		;;
+	"version")
+		echo "script version: v1.0"
+		;;
+	"genviewer")
+		args1=`echo $@ | sed 's/genviewer\ //g'`
+		mc-overviewer $args1
+		;;
+	*)
+		cmd $@
+		;;
+esac
