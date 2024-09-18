@@ -1,0 +1,15 @@
+
+version: "3.5"
+
+services:
+    {{ SERVER_NAME }}:
+        image: {{ IMAGE_NAME }}:latest
+        container_name: {{ SERVER_NAME }}
+        ports: {{ PORT }}
+        environment:
+            EULA: "TRUE"
+            VERSION: "{{ VERSION }}"
+        restart: always
+        volumns:
+            - {{ MCWORLD }}:/opt/mcwolrd
+

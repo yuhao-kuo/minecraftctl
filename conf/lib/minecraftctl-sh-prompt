@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+minecraftctl_register_completions() {
+    local USER_INPUT PREV_CMD CMD_LIST
+    USER_INPUT="${COMP_WORDS[COMP_CWORD]}"
+    PREV_CMD="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "$PREV_CMD" == "minecraftctl" ]; then
+        CMD_LIST=`cat commands | sed 's/\n/\ /g'`
+    else
+        # 需要考慮 prompt.d 的路徑
+        # 最佳狀態應該是在source時，就先註冊好絕對路徑
+        if [ -f prompt.d/$PREV_CMD ]; then
+            source prompt.d/$PREV_CMD
+            CMD_LIST=$($PREV_CMD)
+        else
+            CMD_LIST=""
+        fi
+    fi
+    COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
+}
+
+complete -F minecraftctl_register_completions minecraftctl
+
