@@ -7,7 +7,6 @@ services:
         container_name: {{ SERVER_NAME }}
         ports: {{ PORT }}
         environment:
-            EULA: "TRUE"
             VERSION: "{{ VERSION }}"
         restart: always
         volumns:
