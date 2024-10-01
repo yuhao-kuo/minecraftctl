@@ -1,0 +1,9 @@
+
+volumes:
+    {{ MCCTLVOL }}:
+        name: {{ MCCTLVOL }}
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${MCWORLD}
