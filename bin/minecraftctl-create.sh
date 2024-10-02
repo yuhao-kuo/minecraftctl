@@ -1,22 +1,15 @@
 #!/bin/bash
 
 function minecraftctl_create_world() {
-    # arg1: server name
-    # arg2: world path
-    # arg3: template file direction
+    # arg1: world path
+    # arg2: template file direction
 
-    local _world_dir _eula_file _eula_template_file _write_eula _volume_name
-    _world_dir=$2
+    local _world_dir _eula_file _eula_template_file _write_eula
+    _world_dir=$1
     _eula_file=`echo "$_world_dir/eula.txt" | sed 's/\/\//\//g'`
-    _eula_template_file=`echo "$3/eula.txt.temp" | sed 's/\/\//\//g'`
+    _eula_template_file=`echo "$2/eula.txt.temp" | sed 's/\/\//\//g'`
     if [ ! -d "$_world_dir" ]; then
         mkdir -p $_world_dir
-    fi
-
-    # docker volume
-    _volume_name=$1
-    if [ "$(docker volume ls | grep $_volume_name)" == "" ]; then
-        docker volume create --name $_volume_name --driver local --opt type=none --opt o=bind --opt device=$_world_dir
     fi
 
     # eula
@@ -72,7 +65,7 @@ function minecraftctl_create() {
 
     _input_dir=$7
     _mcvol_name="mcctlvol_${_server_name}"
-    minecraftctl_create_world $_mcvol_name "$5/$_server_name" $_input_dir
+    minecraftctl_create_world "$5/$_server_name" $_input_dir
 
     cat $_input_dir/volume.yml.temp | sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" > $_output_path/docker-volume.yml
 
