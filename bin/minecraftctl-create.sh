@@ -1,5 +1,34 @@
 #!/bin/bash
 
+function minecraftctl_create_is_remap() {
+    # arg1: world path
+
+    local _world_path _docker_remap_user _subuid _subgid _log
+
+    _world_path=$1
+    _docker_remap_user=`cat /etc/docker/daemon.json | grep '"userns-remap"' | sed s/\"//g | awk '{print $2}'`
+
+    # change world account
+    if [ "$_docker_remap_user" != "" ]; then
+
+        # if use docker default, change the variable
+        if [ "$_docker_remap_user" == "default" ]; then
+            _docker_remap_user="dockremap"
+        fi
+
+        # add ACL for container user account
+        _subuid=`cat /etc/subuid | grep $_docker_remap_user | awk -F':' '{print $2}'`
+        _subgid=`cat /etc/subgid | grep $_docker_remap_user | awk -F':' '{print $2}'`
+        _subuid=`expr $_subuid + 1000`
+        _subgid=`expr $_subgid + 1000`
+        _log=`echo "$_world_path/acl.log" | sed 's/\/\//\//g'`
+        getfacl -p $_world_path >> $_log
+        chmod 600 $_log
+        setfacl -m u:${_subuid}:rwx ${_world_path}
+        setfacl -m g:${_subgid}:rwx ${_world_path}
+    fi
+}
+
 function minecraftctl_create_world() {
     # arg1: world path
     # arg2: template file direction
@@ -22,6 +51,9 @@ function minecraftctl_create_world() {
             echo "file not found, \"$_eula_file\""
         fi
     fi
+
+    # change owner of world
+    minecraftctl_create_is_remap $_world_dir
 }
 
 function minecraftctl_create() {

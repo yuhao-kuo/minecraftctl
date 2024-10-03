@@ -13,11 +13,10 @@ function minecraftctl_init_change_world_properties() {
 }
 
 function minecraftctl_init_world() {
-    local _conf _var _world _server_name _docker_main_yml _docker_volume_yml _exec_env _server_env _checkfunc _count
+    local _conf _var _server_name _docker_main_yml _docker_volume_yml _exec_env _server_env _checkfunc _count
     _conf=$1
     _var=$2
-    _world=$3
-    _server_name=$4
+    _server_name=$3
 
     _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`
     _docker_volume_yml=`echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g'`
@@ -26,6 +25,19 @@ function minecraftctl_init_world() {
 
     # start container
     docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} up -d
+
+    # double check that is ready.
+    _count=0
+    _checkfunc="docker ps | grep ${_server_name}"
+    while [ "`eval $_checkfunc`" == "" ]
+    do
+        _count=`expr $_count + 1`
+        if [ $_count -ge 20 ]; then
+            echo "timeout"
+            break
+        fi
+        sleep 5
+    done
 
     # double check that is ready.
     _count=0
@@ -48,18 +60,19 @@ function minecraftctl_init_world() {
     # stop minecraft server
     docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} down
 
+    # create container
+    docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_server_name}"  up --no-start
 }
 
 function minecraftctl_init() {
     # arg1: server name
     # arg2: conf directory
     # arg3: var directory
-    # arg4: world directory
 
     local _server_name _conf_path _var_path
 
     # variable count check
-    if [ $# -ne 4 ]; then
+    if [ $# -ne 3 ]; then
         echo "miss argument or over argument"
         exit
     fi
@@ -79,14 +92,9 @@ function minecraftctl_init() {
         echo "variable directory path is empty"
         exit
     fi
-    _world_path=$4
-    if [ "$_world_path" == "" ]; then
-        echo "world directory path is empty"
-        exit
-    fi
 
     # call function
-    minecraftctl_init_world $_conf_path $_var_path $_world_path $_server_name
+    minecraftctl_init_world $_conf_path $_var_path $_server_name
 
 }
 
