@@ -1,0 +1,20 @@
+
+services:
+    minecraft:
+        image: ${IMAGE_NAME}:latest
+        container_name: ${SERVER_NAME}
+        ports:
+            - ${PORT}:25565
+        environment:
+            mc_version: "${MCVERSION}"
+            mc_mem_ms: ${MCMEMMS}
+            mc_mem_mx: ${MCMEMMX}
+        #restart: always
+        stdin_open: true
+        tty: true
+        volumes:
+            - ${MCCTLVOL}:/opt/mcworld
+            - ${SERVERPATH}:/opt/mcserver:ro
+            - ${SCRIPTPATH}:/opt/mc.conf:ro
+        entrypoint: [ "/bin/bash", "/opt/mc.conf/mc.sh" ]
+        #entrypoint: [ "/bin/bash" ]
