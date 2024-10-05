@@ -2,17 +2,18 @@
 
 
 minecraftctl_register_completions() {
-    local USER_INPUT PREV_CMD CMD_LIST
+    local USER_INPUT PREV_CMD CMD_LIST CONF_PATH
     USER_INPUT="${COMP_WORDS[COMP_CWORD]}"
     PREV_CMD="${COMP_WORDS[COMP_CWORD-1]}"
+    CONF_PATH=`cat $MINECRAFTCTL_CONF_FILE | grep 'MINECRAFTCTL_CONF=' | sed 's/MINECRAFTCTL_CONF=//g'`
     if [ "$PREV_CMD" == "minecraftctl" ]; then
-        CMD_LIST=`cat commands | sed 's/\n/\ /g'`
+        CMD_LIST=`cat ${CONF_PATH}/lib/commands | sed 's/\n/\ /g'`
     else
         # 需要考慮 prompt.d 的路徑
         # 最佳狀態應該是在source時，就先註冊好絕對路徑
-        if [ -f prompt.d/$PREV_CMD ]; then
-            source prompt.d/$PREV_CMD
-            CMD_LIST=$($PREV_CMD)
+        if [ -f ${CONF_PATH}/lib/prompt.d/$PREV_CMD ]; then
+            source ${CONF_PATH}/lib/prompt.d/$PREV_CMD
+            CMD_LIST=$($PREV_CMD ${CONF_PATH})
         else
             CMD_LIST=""
         fi

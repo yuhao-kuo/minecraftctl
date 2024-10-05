@@ -1,6 +1,6 @@
 
 function save() {
-    source $(dirname $(readlink -f "$0"))/prompt.d/_get_server.sh
-    echo "$(_get_servers)"
+    source ${1}/lib/prompt.d/_get_server.sh
+    echo "$(_get_servers $1)"
 }
 
