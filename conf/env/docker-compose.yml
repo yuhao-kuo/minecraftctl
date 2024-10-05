@@ -17,4 +17,3 @@ services:
             - ${SERVERPATH}:/opt/mcserver:ro
             - ${SCRIPTPATH}:/opt/mc.conf:ro
         entrypoint: [ "/bin/bash", "/opt/mc.conf/mc.sh" ]
-        #entrypoint: [ "/bin/bash" ]

@@ -1,5 +1,5 @@
 
 function init() {
-    echo "init"
+    echo ""
 }
 

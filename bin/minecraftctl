@@ -1,2 +1,18 @@
 #!/bin/bash
 
+
+# minecraftctl config environment check.
+if [ -f $MINECRAFTCTL_CONF_FILE ]; then
+    source $MINECRAFTCTL_CONF_FILE
+else
+    echo "Environment MINECRAFTCTL_CONF_FILE not found."
+    exit 1
+fi
+
+# command detect
+__MINECRAFTCTL_CMD_SCRIPT=${MINECRAFTCTL_BIN}/minecraftctl-${1}.sh
+if [ -f $__MINECRAFTCTL_CMD_SCRIPT ]; then
+    source $__MINECRAFTCTL_CMD_SCRIPT
+    minecraftctl_${1} ${@:2}
+fi
+
