@@ -7,9 +7,9 @@ function minecraftctl_start() {
     # arg3: server name
 
     local _conf _var _server_name _docker_main_yml _docker_volume_yml _exec_env _server_env
-    _conf=$1
-    _var=$2
-    _server_name=$3
+    _conf=$MINECRAFTCTL_CONF
+    _var=$MINECRAFTCTL_VAR
+    _server_name=$1
 
     # build container config file paths
     _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`

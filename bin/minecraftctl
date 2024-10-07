@@ -2,7 +2,7 @@
 
 
 # minecraftctl config environment check.
-if [ -f $MINECRAFTCTL_CONF_FILE ]; then
+if [ "$MINECRAFTCTL_CONF_FILE" != "" ] && [ -f $MINECRAFTCTL_CONF_FILE ]; then
     source $MINECRAFTCTL_CONF_FILE
 else
     echo "Environment MINECRAFTCTL_CONF_FILE not found."
