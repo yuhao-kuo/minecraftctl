@@ -1,0 +1,5 @@
+
+services:
+    minecraft:
+        volumes:
+            - ${SOURCEPATH}:/opt/source:ro

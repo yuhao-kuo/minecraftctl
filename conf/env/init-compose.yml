@@ -1,0 +1,5 @@
+
+services:
+    minecraft:
+        container_name: init_${SERVER_NAME}
+        entrypoint: [ "/bin/bash" ]

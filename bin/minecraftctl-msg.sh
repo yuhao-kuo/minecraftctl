@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source minecraftctl-exec.sh
+source ${MINECRAFTCTL_BIN}/minecraftctl-exec.sh
 
 function minecraftctl_msg() {
     # arg1 server name
