@@ -31,7 +31,6 @@ function minecraftctl_import() {
      
         # init world setting
         source ${_bin}/minecraftctl_init.sh
-        # TODO: command has bug.
         __minecraftctl_init $_server_name $_conf $_var FALSE
 
     else

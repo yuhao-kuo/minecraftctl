@@ -14,6 +14,6 @@ services:
         tty: true
         volumes:
             - ${MCCTLVOL}:/opt/mcworld
-            - ${SERVERPATH}:/opt/mcserver:ro
-            - ${SCRIPTPATH}:/opt/mc.conf:ro
+            - ${MINECRAFTCTL_SERVERPATH}:/opt/mcserver:ro
+            - ${MINECRAFTCTL_SCRIPTPATH}:/opt/mc.conf:ro
         entrypoint: [ "/bin/bash", "/opt/mc.conf/mc.sh" ]

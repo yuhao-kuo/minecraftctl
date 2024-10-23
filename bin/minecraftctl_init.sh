@@ -15,8 +15,6 @@ function __minecraftctl_init_change_world_properties() {
     # rewrite RCON setting
     docker exec -it ${_server_name} sed -i '/^enable-rcon=/c\enable-rcon=true' /opt/mcworld/server.properties
     docker exec -it ${_server_name} sed -i '/^rcon.password=/c\rcon.password=1234' /opt/mcworld/server.properties
-    # docker exec -it ${_server_name} sed -e 's/enable-rcon=false/enable-rcon=true/g' -i /opt/mcworld/server.properties
-    # docker exec -it ${_server_name} sed -e 's/rcon.password=/rcon.password=1234/g' -i /opt/mcworld/server.properties
 }
 
 function __minecraftctl_init_world() {
