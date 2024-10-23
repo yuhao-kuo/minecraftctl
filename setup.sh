@@ -8,6 +8,8 @@ function _setup_mkdir() {
 
 # setup block
 
+# TODO: minecraftctl depends on Docker, so we need check that.
+
 SHELL_PATH=$(dirname $(readlink -f "$0"))
 
 
@@ -76,7 +78,9 @@ echo "MINECRAFTCTL_SCRIPTPATH=$MINECRAFTCTL_SCRIPTPATH" >> ${MINECRAFTCTL_CONF_F
 echo "MINECRAFTCTL_COMPGENPATH=$MINECRAFTCTL_COMPGENPATH" >> ${MINECRAFTCTL_CONF_FILE}
 
 # copy data to target
-cp minecraftctl $(echo "${MINECRAFTCTL_CMD_PATH}/minecraftctl" | sed 's/\/\//\//g')
+MINECRAFTCTL_MAIN_FILE=$(echo "${MINECRAFTCTL_CMD_PATH}/minecraftctl" | sed 's/\/\//\//g')
+cp minecraftctl $MINECRAFTCTL_MAIN_FILE 
+chmod 755 $MINECRAFTCTL_MAIN_FILE
 
 cp -R bin/. $MINECRAFTCTL_BIN
 cp -R conf/. $MINECRAFTCTL_CONF
