@@ -2,10 +2,11 @@
 
 
 MC_JAVA=`grep "${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}'`
+MC_VENDER=`grep "${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}'`
 JAVA=/opt/mcserver/${MC_JAVA}/bin
 export PATH=${PATH}:${JAVA}
 
-MC_EXEC=/opt/mcserver/mcserv/minecraft_server_v${mc_version}.jar
+MC_EXEC=/opt/mcserver/mcserv/${MC_VENDER}_v${mc_version}.jar
 
 cd /opt/mcworld
 

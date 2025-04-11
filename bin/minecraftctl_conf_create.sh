@@ -99,6 +99,7 @@ function __minecraftctl_conf_create() {
     echo "IMAGE_NAME=$2" >> $_output_file
     echo "PORT=$3" >> $_output_file
     echo "MCVERSION=$4" >> $_output_file
+    echo "MCVENDER=mojang" >> $_output_file
     echo "MCWORLD=$7/$_server_name" >> $_output_file
 
     _input_dir=$9

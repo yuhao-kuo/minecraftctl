@@ -5,7 +5,7 @@ __minecraftctl_register_completions() {
     local USER_INPUT PREV_CMD CMD_LIST COMPGENSCRIPT_PATH
     USER_INPUT="${COMP_WORDS[COMP_CWORD]}"
     PREV_CMD="${COMP_WORDS[COMP_CWORD-1]}"
-    COMPGENSCRIPT_PATH=`cat $MINECRAFTCTL_CONF_FILE | grep 'MINECRAFTCTL_COMPGENPATH=' | sed 's/MINECRAFTCTL_COMPGENPATH=//g'`
+    COMPGENSCRIPT_PATH=`cat $MINECRAFTCTL_CONF_FILE | grep 'MINECRAFTCTL_COMPGEN_PATH=' | sed 's/MINECRAFTCTL_COMPGEN_PATH=//g'`
     if [ "$PREV_CMD" == "minecraftctl" ]; then
         CMD_LIST=`cat ${COMPGENSCRIPT_PATH}/commands | sed 's/\n/\ /g'`
     else
