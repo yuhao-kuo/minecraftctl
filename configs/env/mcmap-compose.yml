@@ -4,8 +4,7 @@ services:
         image: ${MCMAP_IMAGE}:${MCMAP_IMAGE_VERSION}
         container_name: ${SERVER_NAME}_mcmap
         restart: always
-        #command: -r -u -w
-        command: -w
+        command: -r -u -w
         networks:
             - mcmap_net
         volumes:

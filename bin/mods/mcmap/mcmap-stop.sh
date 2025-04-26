@@ -11,7 +11,7 @@ function mcmap_stop() {
         source $_mcmap_env
         local _server_env=`echo "${_var}/${1}/server.env" | sed 's/\/\//\//g'`
         source $_server_env
-        local _docker_is_running=`docker ps -f "ancestor=${MCMAP_IMAGE}" -f "status=running" --format "table {{.Names}}" | grep ${_mcmap_server_name}`
+        local _docker_is_running=`docker ps -f "ancestor=${MCMAP_IMAGE}" -f "status=running" -f "status=restarting" --format "table {{.Names}}" | grep ${_mcmap_server_name}`
         
         if [ ! "$_docker_is_running" == "" ]; then
             docker compose --file ${_mcmap_main_yml} --env-file ${_mcmap_env} --env-file ${_server_env} --project-name ${_mcmap_server_name} stop
