@@ -1,0 +1,16 @@
+
+services:
+    mcmap_proxy:
+        image: nginx:latest
+        container_name: ${MCMAP_DEFAULT_PROXY_NAME}
+        restart: always
+        networks:
+            - mcmap_net
+        volumes:
+            - ${MCMAP_DEFAULT_PROXY_ROUTE_DIR}:/etc/nginx/conf.d/locations
+
+networks:
+    mcmap_net:
+        external: true
+        name: "mcmap_net"
+
