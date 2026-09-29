@@ -12,6 +12,12 @@ function mcmap_stop() {
         local _server_env=`echo "${_var}/${1}/server.env" | sed 's/\/\//\//g'`
         source $_server_env
         local _docker_is_running=`docker ps -f "ancestor=${MCMAP_IMAGE}" -f "status=running" -f "status=restarting" --format "table {{.Names}}" | grep ${_mcmap_server_name}`
+
+        source ${_bin}/mods/mcmap/mcmap_proxy.sh
+        # unlink proxy call function: mcmap_proxy_unlink
+        mcmap_proxy_server_unlink
+        # stop proxy call function: mcmap_proxy_stop
+        mcmap_proxy_stop
         
         if [ ! "$_docker_is_running" == "" ]; then
             docker compose --file ${_mcmap_main_yml} --env-file ${_mcmap_env} --env-file ${_server_env} --project-name ${_mcmap_server_name} stop

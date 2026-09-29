@@ -131,3 +131,45 @@ function mcmap_proxy_stop() {
     echo "func mcmap_proxy_stop end"
 }
 
+function mcmap_proxy_create_route() {
+    __mcmap_proxy_conf_file_init
+    
+    local MCMAP_SERVER_NAME=${1}
+    local ROUTE_FILE="$MINCECRAFTCTL_CONF/templates/mcmap_proxy_route.conf.tmp"
+    local TARGET_PATH="${MINECRAFTCTL_VAR}/${MCMAP_SERVER_NAME}/mods/mcmap/${MCMAP_SERVER_NAME}.conf"
+
+    if [ -f "$TARGET_PATH" ]; then
+        echo "file exist"
+        exit 0
+    fi
+
+    # create route file
+    cat $ROUTE_FILE | sed "s/{{\ SERVER_NAME\ }}/$MCMAP_SERVER_NAME/g" | sed "s/{{\ SERVER_URL\ }}/$MCMAP_SERVER_NAME/g" > $TARGET_PATH
+
+}
+
+
+function mcmap_proxy_server_link() {
+    __mcmap_proxy_conf_file_init
+    
+    local MCMAP_SERVER_NAME=${1}
+    local TARGET_PATH="${MINECRAFTCTL_VAR}/${MCMAP_SERVER_NAME}/mods/mcmap/${MCMAP_SERVER_NAME}.conf"
+    local CONF_PATH="${MCMAP_DEFAULT_PROXY_ROUTE_DIR}/${MCMAP_SERVER_NAME}.conf"
+    
+    if [ ! -f "$CONF_PATH" ]; then
+        cp $TARGET_PATR $CONF_PATH
+    fi
+}
+
+function mcmap_proxy_server_unlink() {
+    __mcmap_proxy_conf_file_init
+    
+    local MCMAP_SERVER_NAME=${1}
+    local CONF_PATH="${MCMAP_DEFAULT_PROXY_ROUTE_DIR}/${MCMAP_SERVER_NAME}.conf"
+    
+    if [ -f "$CONF_PATH" ]; then
+        rm -rf $CONF_PATH
+    fi
+}
+
+
