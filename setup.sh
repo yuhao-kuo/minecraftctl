@@ -1,8 +1,11 @@
 #!/bin/bash
 
 function _setup_mkdir() {
-    if [ -d "$1" ]; then
+    if [ ! -e "$1" ]; then
         mkdir -p $1
+    else
+        echo "[Error] $1 existed, stop setup!"
+        exit 0
     fi
 }
 
@@ -11,15 +14,25 @@ function _setup_mkdir() {
 # TODO: minecraftctl depends on Docker, so we need check that.
 
 SHELL_PATH=$(dirname $(readlink -f "$0"))
+RUNUSER=$(whoami)
 
+# base root defined
+if [[ -z "${BASEROOT:-}" ]]; then
+    if [[ "$RUNUSER" == "root" ]]; then
+        BASEROOT=""
+    else
+        BASEROOT="${HOME}/.minecraftctl"
+    fi
+fi
+BASEROOT="${BASEROOT%/}"
 
 if [ "$MINECRAFTCTL_CMD_PATH" == "" ]; then
-    MINECRAFTCTL_CMD_PATH="/usr/local/bin"
+    MINECRAFTCTL_CMD_PATH="${BASEROOT}/usr/local/bin"
 fi
 _setup_mkdir $MINECRAFTCTL_CMD_PATH
 
 if [ "$MINECRAFTCTL_ETC" == "" ]; then
-    MINECRAFTCTL_ETC="/etc/minecraftctl"
+    MINECRAFTCTL_ETC="${BASEROOT}/etc/minecraftctl"
 fi
 _setup_mkdir $MINECRAFTCTL_ETC
 
@@ -28,19 +41,20 @@ if [ "$MINECRAFTCTL_CONF_FILE" == "" ]; then
 fi
 
 if [ "$MINECRAFTCTL_BIN" == "" ]; then
-    MINECRAFTCTL_BIN="/usr/lib/minecraftctl/bin"
+    MINECRAFTCTL_BIN="${BASEROOT}/usr/lib/minecraftctl/bin"
 fi
 _setup_mkdir $MINECRAFTCTL_BIN
 
 if [ "$MINECRAFTCTL_VAR" == "" ]; then
-    MINECRAFTCTL_VAR="/var/lib/minecraftctl/services"
+    MINECRAFTCTL_VAR="${BASEROOT}/var/lib/minecraftctl/services"
 fi
 _setup_mkdir $MINECRAFTCTL_VAR
 
 if [ "$MINECRAFTCTL_CONF" == "" ]; then
-    MINECRAFTCTL_CONF="/var/lib/minecraftctl/configs"
+    MINECRAFTCTL_CONF="${BASEROOT}/var/lib/minecraftctl/configs"
 fi
 _setup_mkdir $MINECRAFTCTL_CONF
+_setup_mkdir ${MINECRAFTCTL_CONF}/env
 MINECRAFTCTL_ENV_CONF_FILE=${MINECRAFTCTL_CONF}/env/exec.env
 
 if [ "$MINECRAFTCTL_DEFAULT_IMAGE" == "" ]; then
@@ -48,27 +62,27 @@ if [ "$MINECRAFTCTL_DEFAULT_IMAGE" == "" ]; then
 fi
 
 if [ "$MINECRAFTCTL_DEFAULT_WORLD" == "" ]; then
-    MINECRAFTCTL_DEFAULT_WORLD="/var/lib/minecraftctl/worlds"
+    MINECRAFTCTL_DEFAULT_WORLD="${BASEROOT}/var/lib/minecraftctl/worlds"
 fi
 _setup_mkdir $MINECRAFTCTL_DEFAULT_WORLD
 
 if [ "$MINECRAFTCTL_SERVERPATH" == "" ]; then
-    MINECRAFTCTL_SERVERPATH="/var/lib/minecraftctl/servers"
+    MINECRAFTCTL_SERVERPATH="${BASEROOT}/var/lib/minecraftctl/servers"
 fi
 _setup_mkdir $MINECRAFTCTL_SERVERPATH
 
 if [ "$MINECRAFTCTL_JDKPATH" == "" ]; then
-    MINECRAFTCTL_JDKPATH="/var/lib/minecraftctl/java"
+    MINECRAFTCTL_JDKPATH="${BASEROOT}/var/lib/minecraftctl/java"
 fi
 _setup_mkdir $MINECRAFTCTL_JDKPATH
 
 if [ "$MINECRAFTCTL_SCRIPTPATH" == "" ]; then
-    MINECRAFTCTL_SCRIPTPATH="/var/lib/minecraftctl/runtime-scripts"
+    MINECRAFTCTL_SCRIPTPATH="${BASEROOT}/var/lib/minecraftctl/runtime-scripts"
 fi
 _setup_mkdir $MINECRAFTCTL_SCRIPTPATH
 
 if [ "$MINECRAFTCTL_COMPGENPATH" == "" ]; then
-    MINECRAFTCTL_COMPGENPATH="/var/lib/minecraftctl/compgen-scripts"
+    MINECRAFTCTL_COMPGENPATH="${BASEROOT}/var/lib/minecraftctl/compgen-scripts"
 fi
 _setup_mkdir $MINECRAFTCTL_COMPGENPATH
 
@@ -80,7 +94,7 @@ echo "MINECRAFTCTL_DEFAULT_IMAGE=$MINECRAFTCTL_DEFAULT_IMAGE" >> ${MINECRAFTCTL_
 echo "MINECRAFTCTL_DEFAULT_WORLD=$MINECRAFTCTL_DEFAULT_WORLD" >> ${MINECRAFTCTL_CONF_FILE}
 echo "MINECRAFTCTL_COMPGENPATH=$MINECRAFTCTL_COMPGENPATH" >> ${MINECRAFTCTL_CONF_FILE}
 
-echo "MINECRAFTCTL_SERVERPATH=$MINECRAFTCTL_SERVERPATH" >> ${MINECRAFTCTL_ENV_CONF_FILE}
+echo "MINECRAFTCTL_SERVERPATH=$MINECRAFTCTL_SERVERPATH" > ${MINECRAFTCTL_ENV_CONF_FILE}
 echo "MINECRAFTCTL_JDKPATH=$MINECRAFTCTL_JDKPATH" >> ${MINECRAFTCTL_ENV_CONF_FILE}
 echo "MINECRAFTCTL_SCRIPTPATH=$MINECRAFTCTL_SCRIPTPATH" >> ${MINECRAFTCTL_ENV_CONF_FILE}
 
@@ -94,12 +108,19 @@ cp -R configs/. $MINECRAFTCTL_CONF
 cp -R runtime-scripts/. $MINECRAFTCTL_SCRIPTPATH
 cp -R compgen-scripts/. $MINECRAFTCTL_COMPGENPATH
 
-# TODO: need create server java and minecraft jar direction and print how to setup.
-
 # setup shell profile
-MINECRAFTCTL_COMPGEN_PROFILE=/etc/profile
-if [ -d /etc/profile.d ]; then
-    MINECRAFTCTL_COMPGEN_PROFILE=/etc/profile.d/minecraftctl-compgen.sh
+if [ "${RUNUSER}" == "root" ]; then
+    if [ "${MINECRAFTCTL_COMPGEN_PROFILE}" == "" ]; then
+        if [ -d "/etc/profile.d" ]; then
+            MINECRAFTCTL_COMPGEN_PROFILE="/etc/profile.d/minecraftctl-compgen.sh"
+        else
+            MINECRAFTCTL_COMPGEN_PROFILE=/etc/profile
+        fi
+    fi
+else
+    if [ "${MINECRAFTCTL_COMPGEN_PROFILE}" == "" ]; then
+        MINECRAFTCTL_COMPGEN_PROFILE="${HOME}/.bashrc"
+    fi
 fi
 
 # write minecraftctl env MINECRAFTCTL_CONF_FILE to profile
