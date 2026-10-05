@@ -5,7 +5,6 @@ ps
 exec
 sh
 create
-init
 save
 users
 msg

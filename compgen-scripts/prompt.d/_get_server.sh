@@ -11,13 +11,13 @@ function _get_servers() {
     if [ "$_CONTAINERS" == "" ]; then
         echo ""
     else
-        _CONFIG="${1}/env/minecraftctl.conf"
+        _CONFIG="${MINECRAFTCTL_CONF_FILE}"
         _VAR=$(grep "MINECRAFTCTL_VAR=" $_CONFIG | sed 's/MINECRAFTCTL_VAR=//g')
-        #echo `ls -l $_VAR | grep ^d | awk '{print $NF}'`
         _SERVERS=`ls -l $_VAR | grep ^d | awk '{print $NF}'`
-        echo $_CONTAINERS | while read -r line; do
-            echo $line
-        done
+        while IFS= read -r line; do
+            if grep -Fxq -- "$line" <<< "$_SERVERS"; then
+                printf '%s\n' "$line"
+            fi
+        done <<< "$_CONTAINERS"
     fi
 }
-
