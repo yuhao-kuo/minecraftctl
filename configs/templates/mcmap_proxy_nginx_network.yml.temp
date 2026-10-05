@@ -1,6 +1,0 @@
-
-networks:
-    map_network:
-        external:
-            name: {{ MAP_NETWORK }}
-
