@@ -7,7 +7,7 @@ ARG USER
 ARG USERID
 ARG GROUPID
 
-RUN [ -n "`id $USERID 2> /dev/null`" ] && userdel -r `id -u $USERID -n`
+#RUN [ -n "`id $USERID 2> /dev/null`" ] && userdel -r `id -u $USERID -n`
 RUN [ -n "`grep \:$GROUPID\: /etc/group 2> /dev/null`" ] || groupadd -g $GROUPID $USER
 RUN [ -n "`id $USERID 2> /dev/null`" ] || useradd -u $USERID -g $GROUPID -m -s /bin/bash $USER
 RUN echo "${USER}:taiwan" | chpasswd
