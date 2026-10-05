@@ -40,24 +40,10 @@ function __minecraftctl_conf_create_world() {
     _world_dir=$1
     _conf_dir=$3
 
-#    _eula_file=`echo "$_world_dir/eula.txt" | sed 's/\/\//\//g'`
-#    _eula_template_file=`echo "$2/eula.txt.temp" | sed 's/\/\//\//g'`
-
     if [ ! -d "$_world_dir" ]; then
         mkdir -p $_world_dir
     fi
  
-#    # eula
-#    if [ ! -f "$_eula_file" ]; then
-#        if [ -f "$_eula_template_file" ]; then
-#            cp $_eula_template_file $_eula_file
-#            _write_eula="sed -e 's/{{\ DATE\ }}/$(date)/g' -i $_eula_file"
-#            eval $_write_eula
-#        else
-#            echo "file not found, \"$_eula_file\""
-#        fi
-#    fi
-
     # change owner of world
     __minecraftctl_conf_create_is_remap $_world_dir $_conf_dir
 }

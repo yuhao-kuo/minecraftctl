@@ -16,5 +16,6 @@ services:
         volumes:
             - ${MCCTLVOL}:/opt/mcworld
             - ${MINECRAFTCTL_SERVERPATH}:/opt/mcserver:ro
+            - ${MINECRAFTCTL_JDKPATH}:/opt/java:ro
             - ${MINECRAFTCTL_SCRIPTPATH}:/opt/mc.conf:ro
         entrypoint: [ "/bin/bash", "/opt/mc.conf/mc.sh" ]
