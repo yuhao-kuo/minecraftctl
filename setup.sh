@@ -46,7 +46,6 @@ MINECRAFTCTL_ENV_CONF_FILE=${MINECRAFTCTL_CONF}/env/exec.env
 if [ "$MINECRAFTCTL_DEFAULT_IMAGE" == "" ]; then
     MINECRAFTCTL_DEFAULT_IMAGE="minecraftctl_server"
 fi
-_setup_mkdir $MINECRAFTCTL_DEFAULT_IMAGE
 
 if [ "$MINECRAFTCTL_DEFAULT_WORLD" == "" ]; then
     MINECRAFTCTL_DEFAULT_WORLD="/var/lib/minecraftctl/worlds"
