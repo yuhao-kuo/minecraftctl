@@ -10,7 +10,10 @@ function minecraftctl_buildimage() {
     if [ ! -d "$1" ]; then
         echo "direction not found, \"$1\""
     else
-        REMAPUSER=`cat /etc/docker/daemon.json | grep '"userns-remap"' | sed s/\"//g | awk '{print $2}'`
+        REMAPUSER=""
+        if [ -f "/etc/docker/daemon.json" ]; then
+            REMAPUSER=`cat /etc/docker/daemon.json | grep '"userns-remap"' | sed s/\"//g | awk '{print $2}'`
+        fi
         if [ "$REMAPUSER" == "" ]; then
             docker build -t minecraftctl_server:latest \
                 --build-arg USER=`whoami` \

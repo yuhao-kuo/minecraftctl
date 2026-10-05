@@ -27,7 +27,11 @@ fi
 BASEROOT="${BASEROOT%/}"
 
 if [ "$MINECRAFTCTL_CMD_PATH" == "" ]; then
-    MINECRAFTCTL_CMD_PATH="${BASEROOT}/usr/local/bin"
+    if [ "${RUNUSER}" == "root" ]; then
+        MINECRAFTCTL_CMD_PATH="/usr/local/bin"
+    else
+        MINECRAFTCTL_CMD_PATH="${BASEROOT}"
+    fi
 fi
 _setup_mkdir $MINECRAFTCTL_CMD_PATH
 
@@ -127,7 +131,7 @@ fi
 echo "export MINECRAFTCTL_CONF_FILE=$MINECRAFTCTL_CONF_FILE" >> ${MINECRAFTCTL_COMPGEN_PROFILE}
 
 # register minecraftctl compgen to etc
-echo "source $MINECRAFTCTL_COMPGENPATH" >> ${MINECRAFTCTL_COMPGEN_PROFILE}
+echo "source ${MINECRAFTCTL_COMPGENPATH}/minecraftctl-sh-prompt" >> ${MINECRAFTCTL_COMPGEN_PROFILE}
 
 # load the new profile
 source $MINECRAFTCTL_COMPGEN_PROFILE
