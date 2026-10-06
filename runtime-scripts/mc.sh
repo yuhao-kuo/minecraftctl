@@ -23,5 +23,13 @@ if [ ! -f "$EULA_FILE" ]; then
     fi
 fi
 
-java -Dlog4j2.formatMsgNoLookups=true -Xms${mc_mem_ms} -Xmx${mc_mem_mx} -jar ${MC_EXEC} nogui
+if [ ! -f "${MC_EXEC}" ]; then
+    echo "[Error] Minecraft executable \"${MC_EXEC}\" file not found"
+elif [ ! -d "${JAVA}" ]; then
+    echo "[Error] JDK direcotry \"${JAVA}\" not found."
+elif [ ! -f "${JAVA%/}/java" ]; then
+    echo "[Error] Java binary file \"${JAVA%/}/java\" not found."
+else
+    java -Dlog4j2.formatMsgNoLookups=true -Xms${mc_mem_ms} -Xmx${mc_mem_mx} -jar ${MC_EXEC} nogui
+fi
 

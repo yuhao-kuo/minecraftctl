@@ -62,7 +62,7 @@ function minecraftctl_import() {
      
         # init world setting
         source ${_bin}/minecraftctl_init.sh
-        __minecraftctl_init $_server_name $_conf $_var FALSE
+        __minecraftctl_init $_server_name $_conf $_var FALSE || return 1
 
     else
         echo "[Error] Direction \"$_import_path\" not found."

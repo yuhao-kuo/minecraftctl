@@ -55,6 +55,6 @@ function minecraftctl_create() {
 
     source ${_bin}/minecraftctl_init.sh
 
-    __minecraftctl_init $_server_name $_conf $_var
+    __minecraftctl_init $_server_name $_conf $_var || return 1
 
 }
