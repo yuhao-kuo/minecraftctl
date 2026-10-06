@@ -19,27 +19,49 @@ function __minecraftctl_init_change_world_properties() {
 
 function __minecraftctl_init_wait_ready() {
     # arg1: container name
-    # arg2: (optional) file name that must exist under /opt/mcworld
-    local _name _target _i _running
+    # successfully return 0, else return 1
+    local _name _i _running _success _failed
     _name=$1
-    _target=$2
-
+    _success=0
+    _failed=1
+    if [ "${_name}" == "" ]; then
+        echo "[Error] server name is empty."
+        return $_failed
+    fi
     for ((_i = 0; _i < 20; _i++)); do
         _running=`docker inspect -f '{{.State.Running}}' ${_name} 2>/dev/null`
-        if [ "$_running" == "false" ]; then
-            echo "[Error] container ${_name} exited"
-            return 1
-        fi
         if [ "$_running" == "true" ]; then
-            if [ "$_target" == "" ] || docker exec ${_name} find /opt/mcworld -name ${_target} 2>/dev/null | grep -q .; then
-                return 0
-            fi
+            return $_success
+        elif  [ "$_running" == "" ] || [ "$_running" == "false" ]; then
+            sleep 2
         fi
-        sleep 5
     done
 
     echo "[Error] timeout waiting for container ${_name}"
-    return 1
+    return $_failed
+}
+
+function __minecraft_init_wait_file_created() {
+    # arg1: container name
+    # arg2: target file name
+    # successfully return 0, else return 1
+    local _cnt _name _target _success _failed
+    _name=$1
+    _target=$2
+    _success=0
+    _failed=1
+    if [ "${_name}" == "" ] || [ "${_target}" == "" ]; then
+        echo "[Error] container name or target is empty."
+        return $_failed
+    fi
+    for ((_cnt = 0; _cnt < 10; _cnt++)); do
+        if docker exec ${_name} find /opt/mcworld -name ${_target} 2>/dev/null | grep -q .; then
+            return $_success
+        fi
+        sleep 2
+    done
+    echo "[Error] Server file \"${_target}\" finding timout."
+    return $_failed
 }
 
 function __minecraftctl_init_world() {
@@ -48,6 +70,9 @@ function __minecraftctl_init_world() {
     _var=$2
     _server_name=$3
     _has_world=$4
+    local _success _failed
+    _success=0
+    _failed=1
 
     _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`
     _docker_volume_yml=`echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g'`
@@ -60,26 +85,34 @@ function __minecraftctl_init_world() {
         _file=`echo "--file ${_conf}/env/init-compose.yml" | sed 's/\/\//\//g'`
     fi
 
-    local _ready=0
+    local _ready=$_failed
 
     # start container
     if docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} $_file --env-file ${_exec_env} --env-file ${_server_env} up -d; then
         if [ "$_file" == "" ]; then
-            __minecraftctl_init_wait_ready ${_server_name} server.properties && _ready=1
+            # these functions return 0 on success, 1 otherwise
+            __minecraftctl_init_wait_ready ${_server_name}
+            _ready=$?
+            if [ $_ready -eq $_success ]; then
+                __minecraft_init_wait_file_created ${_server_name} server.properties
+                _ready=$?
+            fi
+        else
+            _ready=$_success
         fi
     else
         echo "[Error] docker compose up failed"
     fi
 
     # change server.properties RCON setting
-    if [ $_ready -eq 1 ]; then
+    if [ $_ready -eq $_success ]; then
         __minecraftctl_init_change_world_properties ${_server_name} $_file
     fi
 
     # stop minecraft server (always clean up)
     docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} $_file --env-file ${_exec_env} --env-file ${_server_env} down
 
-    if [ $_ready -ne 1 ]; then
+    if [ $_ready -ne $_success ]; then
         echo "[Error] init failed for server \"${_server_name}\""
         return 1
     fi

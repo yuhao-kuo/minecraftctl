@@ -24,11 +24,11 @@ if [ ! -f "$EULA_FILE" ]; then
 fi
 
 if [ ! -f "${MC_EXEC}" ]; then
-    echo "[Error] Minecraft executable \"${MC_EXEC}\" file not found"
+    echo "[Error] Minecraft executable \"${MC_EXEC}\" file not found" | tee -a /opt/mcworld/minecraftctl.log
 elif [ ! -d "${JAVA}" ]; then
-    echo "[Error] JDK direcotry \"${JAVA}\" not found."
+    echo "[Error] JDK direcotry \"${JAVA}\" not found." | tee -a /opt/mcworld/minecraftctl.log
 elif [ ! -f "${JAVA%/}/java" ]; then
-    echo "[Error] Java binary file \"${JAVA%/}/java\" not found."
+    echo "[Error] Java binary file \"${JAVA%/}/java\" not found." | tee -a /opt/mcworld/minecraftctl.log
 else
     java -Dlog4j2.formatMsgNoLookups=true -Xms${mc_mem_ms} -Xmx${mc_mem_mx} -jar ${MC_EXEC} nogui
 fi
