@@ -1,5 +1,93 @@
 
-function config() {
-    echo ""
+function config_complete() {
+    # Complete file paths under the world directory only after the server name.
+    if [ "${COMP_CWORD}" -ge 3 ]; then
+        # Declare local variables for reading configuration and building path candidates.
+        local _config_file _world_root _line _server_name _world_dir _user_input _sub_dir _name_prefix
+        local _entry_path _entry_name _candidate
+
+        # Clear previous candidates and read the configuration file and server name.
+        COMPREPLY=()
+        _config_file=${MINECRAFTCTL_CONF_FILE}
+        _server_name=${COMP_WORDS[2]}
+        if [ ! -r "$_config_file" ] || [ -z "$_server_name" ]; then
+            return
+        fi
+
+        # Read the world data root from the minecraftctl configuration file.
+        while IFS= read -r _line; do
+            case "$_line" in
+                MINECRAFTCTL_DEFAULT_WORLD=*)
+                    _world_root=${_line#*=}
+                    break
+                    ;;
+            esac
+        done < "$_config_file"
+
+        if [ -z "$_world_root" ]; then
+            return
+        fi
+
+        # Prevent the server name from being interpreted as a path outside the world directory.
+        case "$_server_name" in
+            .|..|*/*)
+                return
+                ;;
+        esac
+
+        # Split the input into the subdirectory and the name prefix being completed.
+        _user_input="${COMP_WORDS[COMP_CWORD]}"
+        if [[ "$_user_input" == /* ]]; then
+            return
+        fi
+
+        if [[ "$_user_input" == */* ]]; then
+            _sub_dir=${_user_input%/*}
+            _name_prefix=${_user_input##*/}
+        else
+            _sub_dir=""
+            _name_prefix=$_user_input
+        fi
+
+        # Reject parent-directory components to keep candidates inside the world directory.
+        case "/${_sub_dir}/" in
+            *"/../"*)
+                return
+                ;;
+        esac
+
+        # Locate the current directory; return no candidates if it does not exist.
+        _world_dir="${_world_root%/}/${_server_name%/}"
+        [ -n "$_sub_dir" ] && _world_dir="${_world_dir}/${_sub_dir}"
+        if [ ! -d "$_world_dir" ]; then
+            return
+        fi
+
+        # List matching entries at the current level and append a slash to directory candidates.
+        while IFS= read -r -d '' _entry_path; do
+            _entry_name=${_entry_path##*/}
+            if [[ "$_entry_name" == .* && "$_name_prefix" != .* ]]; then
+                continue
+            fi
+            [[ "$_entry_name" == "$_name_prefix"* ]] || continue
+
+            # Return the entry name only; the subdirectory is used only to select the lookup directory.
+            _candidate=$_entry_name
+
+            if [ -d "$_entry_path" ]; then
+                _candidate="${_candidate}/"
+            fi
+            COMPREPLY+=("$_candidate")
+        done < <(find "$_world_dir" -mindepth 1 -maxdepth 1 -print0 2>/dev/null)
+
+        # Avoid inserting a space after the slash when the sole candidate is a directory.
+        if [ "${#COMPREPLY[@]}" -eq 1 ] && [[ "${COMPREPLY[0]}" == */ ]]; then
+            compopt -o nospace
+        fi
+    fi
 }
 
+function config() {
+    source "${1}/prompt.d/_get_server.sh"
+    _get_servers
+}

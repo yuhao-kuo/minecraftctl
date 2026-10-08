@@ -1,23 +1,50 @@
 #!/bin/bash
 
 
+function __minecraftctl_complete_format_space() {
+    if [ ${#COMPREPLY[@]} -eq 1 ]; then
+        compopt -o nospace
+        COMPREPLY[0]="${COMPREPLY[0]} "
+    fi
+}
+
 __minecraftctl_register_completions() {
-    local USER_INPUT PREV_CMD CMD_LIST COMPGENSCRIPT_PATH
+    local USER_INPUT PREV_CMD CMD_LIST COMPGENSCRIPT_PATH CMD_LENGTH INDEX
     USER_INPUT="${COMP_WORDS[COMP_CWORD]}"
     PREV_CMD="${COMP_WORDS[COMP_CWORD-1]}"
+    CMD_LENGTH=${#COMP_WORDS[@]}
+    INDEX=${COMP_CWORD}
     COMPGENSCRIPT_PATH=`cat $MINECRAFTCTL_CONF_FILE | grep 'MINECRAFTCTL_COMPGENPATH=' | sed 's/MINECRAFTCTL_COMPGENPATH=//g'`
-    if [ "$PREV_CMD" == "minecraftctl" ]; then
+    if [ ${INDEX} -le 1 ] && [ "$PREV_CMD" == "minecraftctl" ]; then
+        # list command and complete commands
         CMD_LIST=`cat ${COMPGENSCRIPT_PATH}/commands | sed 's/\n/\ /g'`
+        COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
+        __minecraftctl_complete_format_space
+    elif [ ${INDEX} -eq 2 ] && [ -f ${COMPGENSCRIPT_PATH}/prompt.d/$PREV_CMD ]; then
+        # call command sub options
+        source ${COMPGENSCRIPT_PATH}/prompt.d/$PREV_CMD
+        CMD_LIST=$($PREV_CMD ${COMPGENSCRIPT_PATH})
+        COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
+        __minecraftctl_complete_format_space
     else
-        if [ -f ${COMPGENSCRIPT_PATH}/prompt.d/$PREV_CMD ]; then
-            # TODO: add parameter for compgen
-            source ${COMPGENSCRIPT_PATH}/prompt.d/$PREV_CMD
-            CMD_LIST=$($PREV_CMD ${COMPGENSCRIPT_PATH})
+        # process other rules
+        if [ ${#COMP_WORDS[@]} -ge 3 ]; then
+            source ${COMPGENSCRIPT_PATH}/prompt.d/${COMP_WORDS[1]}
+            PREV_CMD="${COMP_WORDS[1]}_complete"
+            if [ "$(type -t $PREV_CMD)" == "function" ]; then
+                # bypass for function to gen completion
+                ${PREV_CMD}
+            else
+                # no support
+                CMD_LIST=""
+                COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
+            fi
         else
+            # no support
             CMD_LIST=""
+            COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
         fi
     fi
-    COMPREPLY=($(compgen -W "$CMD_LIST" -- "$USER_INPUT"))
 }
 
 complete -F __minecraftctl_register_completions minecraftctl
