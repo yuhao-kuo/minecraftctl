@@ -1,11 +1,10 @@
-
 #!/bin/bash
 
-
-function __minecraftctl_drop_close_service() {
-    local _success _failed
+function __minecraftctl_remove_server_running_check() {
+    local _success _failed _is_running
     _success=0
     _failed=1
+    _is_running=2
 
     local _service_name _containers _container_check
     _service_name=$1
@@ -21,7 +20,7 @@ function __minecraftctl_drop_close_service() {
             local _runtime
             _runtime=`echo $line | awk '{print $3}'`
             if [ "${_runtime}" == "Up" ]; then
-                minecraftctl stop ${_service_name}
+                return $_is_running
             fi
             break
         fi
@@ -51,7 +50,7 @@ function __minecraftctl_remove_volume() {
     return $_success
 }
 
-function __minecraftctl_drop_remove_world_directory() {
+function __minecraftctl_remove_world_directory() {
     local _success _failed
     _success=0
     _failed=1
@@ -75,7 +74,7 @@ function __minecraftctl_drop_remove_world_directory() {
     return $_success
 }
 
-function __minecraftctl_drop_remove_service_directory() {
+function __minecraftctl_remove_service_directory() {
     local _success _failed
     _success=0
     _failed=1
@@ -122,12 +121,12 @@ function __minecraftctl_remove_service() {
 
     docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_service_name}" down
 }
+function minecraftctl_remove() {
 
-function minecraftctl_drop_world() {
-
-    local _success _failed
+    local _success _failed _is_running
     _success=0
     _failed=1
+    _is_running=2
 
     local _service_name
     _service_name=$1
@@ -153,22 +152,38 @@ function minecraftctl_drop_world() {
         esac
     done
 
-    local _conf _var
-    _conf=$MINECRAFTCTL_CONF
-    _var=$MINECRAFTCTL_VAR
-
     source ${MINECRAFTCTL_CONF_FILE}
+    source ${MINECRAFTCTL_BIN}/minecraftctl_check_server_exist.sh
+    
+    local _check=$_success
 
-    # close service
-    __minecraftctl_drop_close_service ${_service_name} || return $_failed
+    # check server is exist
+    __minecraftctl_check_server_exist ${_service_name} || _check=$_failed
+    if [ ${_check} -eq ${_failed} ]; then
+        echo "[Error] Server \"${_service_name}\" not found."
+        return $_failed
+    fi
+
+    # check server is running
+    __minecraftctl_remove_server_running_check ${_service_name} || _check=$?
+    if [ ${_check} -eq ${_is_running} ]; then
+        echo "[Info] Server \"${_service_name}\" is running, stopped."
+        return $_failed
+    elif [ ${_check} -eq ${_failed} ]; then
+        echo "[Error] Server \"${_service_name}\" check failed."
+        return $_failed
+    fi
+
     # drop service
     __minecraftctl_remove_service ${_service_name} || return $_failed
+
     # remove the service volume
     __minecraftctl_remove_volume ${_service_name} || return $_failed
+
     # remove the world directory
-    __minecraftctl_drop_remove_world_directory ${_service_name} || return $_failed
+    __minecraftctl_remove_world_directory ${_service_name} || return $_failed
     # remote the service directory
-    __minecraftctl_drop_remove_service_directory ${_service_name} || return $_failed
+    __minecraftctl_remove_service_directory ${_service_name} || return $_failed
 
     return $_success
 }

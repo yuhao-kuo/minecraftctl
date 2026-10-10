@@ -31,6 +31,10 @@ function minecraftctl_import() {
 
     local _conf _var _bin _server_name _default_world _default_image _port _version _import_path
 
+    local _success _failed
+    _success=0
+    _failed=1
+
     local _params_count
     _params_count=4
     if [ $# -lt $_params_count ]; then
@@ -51,6 +55,10 @@ function minecraftctl_import() {
         _bin=$MINECRAFTCTL_BIN
         _default_world=$MINECRAFTCTL_DEFAULT_WORLD
         _default_image=$MINECRAFTCTL_DEFAULT_IMAGE
+
+        # check server
+        source ${_bin}/minecraftctl_check_server_exist.sh
+        __minecraftctl_check_server_exist "$_server_name" || return $_failed
      
         # create config to conf/
         source ${_bin}/minecraftctl_conf_create.sh
@@ -64,9 +72,13 @@ function minecraftctl_import() {
         source ${_bin}/minecraftctl_init.sh
         __minecraftctl_init $_server_name $_conf $_var FALSE || return 1
 
+        return $_success
+
     else
         echo "[Error] Direction \"$_import_path\" not found."
     fi
+
+    return $_failed
 
 }
 
