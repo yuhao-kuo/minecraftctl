@@ -1,5 +1,5 @@
 
 function remove() {
     source ${1}/prompt.d/_get_server.sh
-    echo "$(_get_servers $1)"
+    echo "$(_get_servers $1 --all)"
 }
