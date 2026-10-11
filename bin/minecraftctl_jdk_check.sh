@@ -28,7 +28,7 @@ function __minecraftctl_check_server_jdk_depend() {
     fi
 
     local _jdk_dir
-    _jdk_dir=`cat "${_conf}"/env/exec.env | grep '^MMINECRAFTCTL_JDKPATH=' | cut -d '=' -f 2`
+    _jdk_dir=`cat "${_conf}"/env/exec.env | grep '^MINECRAFTCTL_JDKPATH=' | cut -d '=' -f 2`
     if [ ! -d "${_jdk_dir}" ]; then
         echo "[Error] JDK path not found: ${_jdk_dir}"
         return $_failed
@@ -59,7 +59,7 @@ function __minecraftctl_jdk_check() {
         return $_failed
     fi
 
-    __minecraftctl_check_server_jdk_depend || _result=$_failed
+    __minecraftctl_check_server_jdk_depend "$_jdk_version" || _result=$_failed
 
     return $_result
 }
