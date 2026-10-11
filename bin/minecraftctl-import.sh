@@ -47,11 +47,6 @@ function minecraftctl_import() {
     _version=$3
     _import_path=$4
 
-    # shellcheck source=bin/minecraftctl_jdk_check.sh
-    source "${_bin}"/minecraftctl_jdk_check.sh
-
-    __minecraftctl_jdk_check "$_version" || return 1
-
     __minecraftctl_import_naming_rules_check "$_server_name"
 
     if [ -d "$_import_path" ]; then
@@ -60,6 +55,10 @@ function minecraftctl_import() {
         _bin=$MINECRAFTCTL_BIN
         _default_world=$MINECRAFTCTL_DEFAULT_WORLD
         _default_image=$MINECRAFTCTL_DEFAULT_IMAGE
+
+        # shellcheck source=bin/minecraftctl_jdk_check.sh
+        source "${_bin}"/minecraftctl_jdk_check.sh
+        __minecraftctl_jdk_check "$_version" || return 1
 
         # check server
         # shellcheck source=bin/minecraftctl_check_server_exist.sh

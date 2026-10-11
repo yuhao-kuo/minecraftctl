@@ -65,7 +65,7 @@ function __minecraft_init_wait_file_created() {
 }
 
 function __minecraftctl_init_world() {
-    local _conf _var _server_name _has_world _docker_main_yml _docker_volume_yml _exec_env _server_env _file
+    local _conf _var _server_name _has_world _docker_main_yml _docker_volume_yml _exec_env _server_env _file_args
     _conf=$1
     _var=$2
     _server_name=$3
@@ -80,16 +80,16 @@ function __minecraftctl_init_world() {
     _server_env=$(echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g')
     
     if [ "$_has_world" == "" ]; then
-        _file=""
+        _file_args=()
     else
-        _file=$(echo "--file ${_conf}/env/init-compose.yml" | sed 's/\/\//\//g')
+        _file_args=(--file "$(echo "${_conf}/env/init-compose.yml" | sed 's/\/\//\//g')")
     fi
 
     local _ready=$_failed
 
     # start container
-    if docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "$_file" --env-file "${_exec_env}" --env-file "${_server_env}" up -d; then
-        if [ "$_file" == "" ]; then
+    if docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "${_file_args[@]}" --env-file "${_exec_env}" --env-file "${_server_env}" up -d; then
+        if [ "${#_file_args[@]}" -eq 0 ]; then
             # these functions return 0 on success, 1 otherwise
             __minecraftctl_init_wait_ready "${_server_name}"
             _ready=$?
@@ -106,11 +106,11 @@ function __minecraftctl_init_world() {
 
     # change server.properties RCON setting
     if [ $_ready -eq $_success ]; then
-        __minecraftctl_init_change_world_properties "${_server_name}" "$_file"
+        __minecraftctl_init_change_world_properties "${_server_name}" "${_file_args[*]}"
     fi
 
     # stop minecraft server (always clean up)
-    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "$_file" --env-file "${_exec_env}" --env-file "${_server_env}" down
+    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "${_file_args[@]}" --env-file "${_exec_env}" --env-file "${_server_env}" down
 
     if [ $_ready -ne $_success ]; then
         echo "[Error] init failed for server \"${_server_name}\""
