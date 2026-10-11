@@ -26,18 +26,22 @@ change.
 
 ## Validating changes
 
-There is no automated test suite or CI configuration in this repository.
-Validate the smallest relevant behaviour manually in an isolated Docker host.
-At minimum, run Bash syntax checks for modified shell files:
+Run the automated test suite before submitting a change:
 
 ```bash
-bash -n setup.sh minecraftctl bin/*.sh runtime-scripts/mc.sh
+./tests/run.sh
 ```
 
-For changes that affect installation or lifecycle commands, test an empty
-installation path and confirm the expected `create`, `start`, `status`,
-`stop`, and `remove` behaviour. Use a disposable world and port; never use a
-production world for validation.
+The runner requires
+[bats-core](https://github.com/bats-core/bats-core). It runs Bash syntax
+checks, ShellCheck when installed, and isolated tests that use a fake Docker
+command. See [`tests/TEST_PLAN.md`](tests/TEST_PLAN.md) for its scope and test
+conventions.
+
+For changes that affect installation or lifecycle commands, also validate the
+smallest relevant behaviour manually in an isolated Docker host. Confirm the
+expected `create`, `start`, `status`, `stop`, and `remove` behaviour with a
+disposable world and port; never use a production world for validation.
 
 For changes to version support, test that the matching JDK directory, server
 jar filename, and `server_version.conf` entry resolve correctly. Update
