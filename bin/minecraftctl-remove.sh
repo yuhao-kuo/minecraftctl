@@ -161,7 +161,7 @@ function minecraftctl_remove() {
 
     # feedback for user to confirm drop a world
     while true; do
-        read -p "Do you want to continue? (y/n): " choice
+        read -r -p "Do you want to continue? (y/n): " choice
         case "$choice" in
             [yY] )
                 break
