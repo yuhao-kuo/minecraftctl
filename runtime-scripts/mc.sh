@@ -8,7 +8,10 @@ export PATH=${PATH}:${JAVA}
 
 MC_EXEC=/opt/mcserver/${MC_VENDER}_v${mc_version}.jar
 
-cd /opt/mcworld
+if ! cd /opt/mcworld; then
+    echo '[Error] Minecraft world directory "/opt/mcworld" is not accessible.' | tee -a /opt/mcworld/minecraftctl.log
+    exit 1
+fi
 
 EULA_FILE=/opt/mcworld/eula.txt
 TEMP_EULA_FILE=/opt/mc.conf/eula_temp.txt
@@ -32,4 +35,3 @@ elif [ ! -f "${JAVA%/}/java" ]; then
 else
     java -Dlog4j2.formatMsgNoLookups=true -Xms"${mc_mem_ms}" -Xmx"${mc_mem_mx}" -jar "${MC_EXEC}" nogui
 fi
-
