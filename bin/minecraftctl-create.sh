@@ -83,6 +83,10 @@ function minecraftctl_create() {
     _default_world=$MINECRAFTCTL_DEFAULT_WORLD
     _default_image=$MINECRAFTCTL_DEFAULT_IMAGE
 
+    source ${_bin}/minecraftctl_jdk_check.sh
+
+    __minecraftctl_jdk_check $_version || return 1
+
     __minecraftctl_create_naming_rules_check $_server_name
 
     source ${_bin}/minecraftctl_check_server_exist.sh
