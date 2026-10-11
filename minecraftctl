@@ -13,6 +13,5 @@ fi
 __MINECRAFTCTL_CMD_SCRIPT=${MINECRAFTCTL_BIN}/minecraftctl-${1}.sh
 if [ -f $__MINECRAFTCTL_CMD_SCRIPT ]; then
     source $__MINECRAFTCTL_CMD_SCRIPT
-    minecraftctl_${1} ${@:2}
+    minecraftctl_"${1}" "${@:2}"
 fi
-

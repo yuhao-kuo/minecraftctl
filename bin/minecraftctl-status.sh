@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 source ${MINECRAFTCTL_BIN}/minecraftctl_sh_exec.sh

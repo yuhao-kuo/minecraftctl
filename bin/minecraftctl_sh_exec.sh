@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 function __minecraftctl_sh_exec() {

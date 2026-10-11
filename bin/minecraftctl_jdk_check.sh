@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 function __minecraftctl_check_server_jdk_depend() {
