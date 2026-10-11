@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck source=bin/minecraftctl_sh_exec.sh
 source "${MINECRAFTCTL_BIN}/minecraftctl_sh_exec.sh"
 
 function minecraftctl_config() {

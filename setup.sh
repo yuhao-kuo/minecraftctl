@@ -150,8 +150,10 @@ echo "export MINECRAFTCTL_CONF_FILE=$MINECRAFTCTL_CONF_FILE" >> "${MINECRAFTCTL_
 echo "source ${MINECRAFTCTL_COMPGENPATH}/minecraftctl-sh-prompt" >> "${MINECRAFTCTL_COMPGEN_PROFILE}"
 
 # load the new profile
+# shellcheck disable=SC1090
 source "$MINECRAFTCTL_COMPGEN_PROFILE"
 
 # build image
+# shellcheck source=bin/minecraftctl-buildimage.sh
 source "${MINECRAFTCTL_BIN}"/minecraftctl-buildimage.sh
 minecraftctl_buildimage "${MINECRAFTCTL_CONF}"/templates/

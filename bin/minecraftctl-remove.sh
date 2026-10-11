@@ -176,7 +176,9 @@ function minecraftctl_remove() {
         esac
     done
 
+    # shellcheck disable=SC1090
     source "${MINECRAFTCTL_CONF_FILE}"
+    # shellcheck source=bin/minecraftctl_check_server_exist.sh
     source "${MINECRAFTCTL_BIN}"/minecraftctl_check_server_exist.sh
     
     local _check=$_success

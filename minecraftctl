@@ -3,6 +3,7 @@
 
 # minecraftctl config environment check.
 if [ "$MINECRAFTCTL_CONF_FILE" != "" ] && [ -f "$MINECRAFTCTL_CONF_FILE" ]; then
+    # shellcheck disable=SC1090
     source "$MINECRAFTCTL_CONF_FILE"
 else
     echo "Environment MINECRAFTCTL_CONF_FILE not found."
@@ -12,6 +13,7 @@ fi
 # command detect
 __MINECRAFTCTL_CMD_SCRIPT=${MINECRAFTCTL_BIN}/minecraftctl-${1}.sh
 if [ -f "$__MINECRAFTCTL_CMD_SCRIPT" ]; then
+    # shellcheck disable=SC1090
     source "$__MINECRAFTCTL_CMD_SCRIPT"
     minecraftctl_"${1}" "${@:2}"
 fi
