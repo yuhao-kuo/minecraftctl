@@ -16,13 +16,13 @@ function __minecraftctl_host_copy2_container() {
     _host_data_path=$4
     _container_data_path=$5
 
-    _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`
-    _docker_volume_yml=`echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g'`
-    _exec_env=`echo "${_conf}/env/exec.env" | sed 's/\/\//\//g'`
-    _server_env=`echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g'`
-    _source_yml=`echo "${_conf}/env/copy-compose.yml" | sed 's/\/\//\//g'`
-    _source_env=`echo "${_var}/${_server_name}/copy-source.env" | sed 's/\/\//\//g'`
-    _init_yml=`echo "${_conf}/env/init-compose.yml" | sed 's/\/\//\//g'`
+    _docker_main_yml=$(echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g')
+    _docker_volume_yml=$(echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g')
+    _exec_env=$(echo "${_conf}/env/exec.env" | sed 's/\/\//\//g')
+    _server_env=$(echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g')
+    _source_yml=$(echo "${_conf}/env/copy-compose.yml" | sed 's/\/\//\//g')
+    _source_env=$(echo "${_var}/${_server_name}/copy-source.env" | sed 's/\/\//\//g')
+    _init_yml=$(echo "${_conf}/env/init-compose.yml" | sed 's/\/\//\//g')
 
     # build source temp env file
     echo "SOURCEPATH=$_host_data_path" > "$_source_env"
@@ -30,7 +30,7 @@ function __minecraftctl_host_copy2_container() {
     # start container
     docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" --file "${_init_yml}" --file "${_source_yml}" --env-file "${_exec_env}" --env-file "${_server_env}" --env-file "$_source_env" up -d
 
-    _is_running=`docker ps --filter "name=init_$_server_name" --filter "status=running" --format "{{.Names}}"`
+    _is_running=$(docker ps --filter "name=init_$_server_name" --filter "status=running" --format "{{.Names}}")
 
     if [ "$_is_running" != "" ]; then
 

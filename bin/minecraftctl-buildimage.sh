@@ -12,7 +12,7 @@ function minecraftctl_buildimage() {
     else
         REMAPUSER=""
         if [ -f "/etc/docker/daemon.json" ]; then
-            REMAPUSER=`grep '"userns-remap"' /etc/docker/daemon.json | sed s/\"//g | awk '{print $2}'`
+            REMAPUSER=$(grep '"userns-remap"' /etc/docker/daemon.json | sed s/\"//g | awk '{print $2}')
         fi
         if [ "$REMAPUSER" == "" ]; then
             docker build -t minecraftctl_server:latest \

@@ -12,7 +12,7 @@ function minecraftctl_exec() {
     fi
 
     local _SERVER
-    _SERVER=`docker ps --filter "name=$1" --format "{{.Names}}"`
+    _SERVER=$(docker ps --filter "name=$1" --format "{{.Names}}")
     if [ "$_SERVER" == "$1" ]; then
         docker exec -it "$1" rconclt -c /opt/mc.conf/rcon.conf minecraft "${@:2}"
     else

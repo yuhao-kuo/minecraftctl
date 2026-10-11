@@ -29,7 +29,7 @@ function __minecraftctl_init_wait_ready() {
         return $_failed
     fi
     for ((_i = 0; _i < 20; _i++)); do
-        _running=`docker inspect -f '{{.State.Running}}' "${_name}" 2>/dev/null`
+        _running=$(docker inspect -f '{{.State.Running}}' "${_name}" 2>/dev/null)
         if [ "$_running" == "true" ]; then
             return $_success
         elif  [ "$_running" == "" ] || [ "$_running" == "false" ]; then
@@ -74,15 +74,15 @@ function __minecraftctl_init_world() {
     _success=0
     _failed=1
 
-    _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`
-    _docker_volume_yml=`echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g'`
-    _exec_env=`echo "${_conf}/env/exec.env" | sed 's/\/\//\//g'`
-    _server_env=`echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g'`
+    _docker_main_yml=$(echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g')
+    _docker_volume_yml=$(echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g')
+    _exec_env=$(echo "${_conf}/env/exec.env" | sed 's/\/\//\//g')
+    _server_env=$(echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g')
     
     if [ "$_has_world" == "" ]; then
         _file=""
     else
-        _file=`echo "--file ${_conf}/env/init-compose.yml" | sed 's/\/\//\//g'`
+        _file=$(echo "--file ${_conf}/env/init-compose.yml" | sed 's/\/\//\//g')
     fi
 
     local _ready=$_failed

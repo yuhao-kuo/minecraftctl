@@ -13,7 +13,7 @@ function minecraftctl_sh() {
 
     local _server_name _server_stat
     _server_name=$1
-    _server_stat=`docker ps --filter "name=$_server_name" --format "{{.Names}}"`
+    _server_stat=$(docker ps --filter "name=$_server_name" --format "{{.Names}}")
 
     if [ "$_server_stat" == "$_server_name" ]; then
         docker exec -it "$1" /bin/bash
