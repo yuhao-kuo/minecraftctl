@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-MC_JAVA=`grep "${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}'`
-MC_VENDER=`grep "${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}'`
+MC_JAVA=`grep "^${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}'`
+MC_VENDER=`grep "^${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}'`
 JAVA=/opt/java/${MC_JAVA}/bin
 export PATH=${PATH}:${JAVA}
 
