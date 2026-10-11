@@ -83,22 +83,22 @@ function minecraftctl_create() {
     _default_world=$MINECRAFTCTL_DEFAULT_WORLD
     _default_image=$MINECRAFTCTL_DEFAULT_IMAGE
 
-    source ${_bin}/minecraftctl_jdk_check.sh
+    source "${_bin}"/minecraftctl_jdk_check.sh
 
-    __minecraftctl_jdk_check $_version || return 1
+    __minecraftctl_jdk_check "$_version" || return 1
 
-    __minecraftctl_create_naming_rules_check $_server_name
+    __minecraftctl_create_naming_rules_check "$_server_name"
 
-    source ${_bin}/minecraftctl_check_server_exist.sh
+    source "${_bin}"/minecraftctl_check_server_exist.sh
 
     __minecraftctl_check_server_exist "$_server_name" || return 1
 
-    source ${_bin}/minecraftctl_conf_create.sh
+    source "${_bin}"/minecraftctl_conf_create.sh
 
-    __minecraftctl_conf_create ${_server_name} ${_default_image} ${_port} ${_version} 4G 20G ${_default_world} ${_var} ${_conf}/templates
+    __minecraftctl_conf_create "${_server_name}" "${_default_image}" "${_port}" "${_version}" 4G 20G "${_default_world}" "${_var}" "${_conf}"/templates
 
-    source ${_bin}/minecraftctl_init.sh
+    source "${_bin}"/minecraftctl_init.sh
 
-    __minecraftctl_init $_server_name $_conf $_var || return 1
+    __minecraftctl_init "$_server_name" "$_conf" "$_var" || return 1
 
 }

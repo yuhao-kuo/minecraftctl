@@ -7,14 +7,14 @@ function __minecraftctl_init_change_world_properties() {
 
     if [ "$_no_edit_server_properties" == "" ]; then
         # edit properties for user
-        docker exec -it ${_server_name} vim /opt/mcworld/server.properties
+        docker exec -it "${_server_name}" vim /opt/mcworld/server.properties
     else
         _server_name=init_${_server_name}
     fi
 
     # rewrite RCON setting
-    docker exec -it ${_server_name} sed -i '/^enable-rcon=/c\enable-rcon=true' /opt/mcworld/server.properties
-    docker exec -it ${_server_name} sed -i '/^rcon.password=/c\rcon.password=1234' /opt/mcworld/server.properties
+    docker exec -it "${_server_name}" sed -i '/^enable-rcon=/c\enable-rcon=true' /opt/mcworld/server.properties
+    docker exec -it "${_server_name}" sed -i '/^rcon.password=/c\rcon.password=1234' /opt/mcworld/server.properties
 }
 
 function __minecraftctl_init_wait_ready() {
@@ -29,7 +29,7 @@ function __minecraftctl_init_wait_ready() {
         return $_failed
     fi
     for ((_i = 0; _i < 20; _i++)); do
-        _running=`docker inspect -f '{{.State.Running}}' ${_name} 2>/dev/null`
+        _running=`docker inspect -f '{{.State.Running}}' "${_name}" 2>/dev/null`
         if [ "$_running" == "true" ]; then
             return $_success
         elif  [ "$_running" == "" ] || [ "$_running" == "false" ]; then
@@ -55,7 +55,7 @@ function __minecraft_init_wait_file_created() {
         return $_failed
     fi
     for ((_cnt = 0; _cnt < 10; _cnt++)); do
-        if docker exec ${_name} find /opt/mcworld -name ${_target} 2>/dev/null | grep -q .; then
+        if docker exec "${_name}" find /opt/mcworld -name "${_target}" 2>/dev/null | grep -q .; then
             return $_success
         fi
         sleep 2
@@ -88,13 +88,13 @@ function __minecraftctl_init_world() {
     local _ready=$_failed
 
     # start container
-    if docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} $_file --env-file ${_exec_env} --env-file ${_server_env} up -d; then
+    if docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "$_file" --env-file "${_exec_env}" --env-file "${_server_env}" up -d; then
         if [ "$_file" == "" ]; then
             # these functions return 0 on success, 1 otherwise
-            __minecraftctl_init_wait_ready ${_server_name}
+            __minecraftctl_init_wait_ready "${_server_name}"
             _ready=$?
             if [ $_ready -eq $_success ]; then
-                __minecraft_init_wait_file_created ${_server_name} server.properties
+                __minecraft_init_wait_file_created "${_server_name}" server.properties
                 _ready=$?
             fi
         else
@@ -106,11 +106,11 @@ function __minecraftctl_init_world() {
 
     # change server.properties RCON setting
     if [ $_ready -eq $_success ]; then
-        __minecraftctl_init_change_world_properties ${_server_name} $_file
+        __minecraftctl_init_change_world_properties "${_server_name}" "$_file"
     fi
 
     # stop minecraft server (always clean up)
-    docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} $_file --env-file ${_exec_env} --env-file ${_server_env} down
+    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" "$_file" --env-file "${_exec_env}" --env-file "${_server_env}" down
 
     if [ $_ready -ne $_success ]; then
         echo "[Error] init failed for server \"${_server_name}\""
@@ -118,7 +118,7 @@ function __minecraftctl_init_world() {
     fi
 
     # create container
-    docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_server_name}"  up --no-start
+    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" --env-file "${_exec_env}" --env-file "${_server_env}" --project-name "mc_container_${_server_name}"  up --no-start
 }
 
 function __minecraftctl_init() {
@@ -146,7 +146,7 @@ function __minecraftctl_init() {
     fi
 
     # call function
-    __minecraftctl_init_world $_conf_path $_var_path $_server_name $4
+    __minecraftctl_init_world "$_conf_path" "$_var_path" "$_server_name" "$4"
     return $?
 
 }

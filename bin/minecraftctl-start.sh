@@ -72,7 +72,7 @@ function minecraftctl_start() {
     _server_env=`echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g'`
 
     # container start
-    docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_server_name}" start
+    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" --env-file "${_exec_env}" --env-file "${_server_env}" --project-name "mc_container_${_server_name}" start
 
 }
 

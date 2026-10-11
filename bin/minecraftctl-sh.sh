@@ -14,7 +14,7 @@ function minecraftctl_sh() {
     _server_stat=`docker ps --filter "name=$_server_name" --format "{{.Names}}"`
 
     if [ "$_server_stat" == "$_server_name" ]; then
-        docker exec -it $1 /bin/bash
+        docker exec -it "$1" /bin/bash
     else
         echo "[Warning] server \"${_server_name}\" not running."
     fi

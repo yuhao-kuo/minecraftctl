@@ -18,12 +18,12 @@ function minecraftctl_buildimage() {
             docker build -t minecraftctl_server:latest \
                 --build-arg USER=`whoami` \
                 --build-arg USERID=`id -u` \
-                --build-arg GROUPID=`id -g` ${DOCKERFILE_DIR}
+                --build-arg GROUPID=`id -g` "${DOCKERFILE_DIR}"
         else
             docker build -t minecraftctl_server:latest \
                 --build-arg USER=minecraft \
                 --build-arg USERID=1000 \
-                --build-arg GROUPID=1000 ${DOCKERFILE_DIR}
+                --build-arg GROUPID=1000 "${DOCKERFILE_DIR}"
         fi
     fi
 }

@@ -18,7 +18,7 @@ function minecraftctl_stop() {
         _docker_volume_yml=`echo "${_var}/${_server_name}/docker-volume.yml" | sed 's/\/\//\//g'`
         _exec_env=`echo "${_conf}/env/exec.env" | sed 's/\/\//\//g'`
         _server_env=`echo "${_var}/${_server_name}/server.env" | sed 's/\/\//\//g'`
-        docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_server_name}" stop
+        docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" --env-file "${_exec_env}" --env-file "${_server_env}" --project-name "mc_container_${_server_name}" stop
     else
         echo "[Info] Not search \"$_server_name\" is running."
     fi

@@ -21,15 +21,15 @@ function __minecraftctl_conf_create_is_remap() {
             fi
 
             # add ACL for container user account
-            _subuid=`cat /etc/subuid | grep $_docker_remap_user | awk -F':' '{print $2}'`
-            _subgid=`cat /etc/subgid | grep $_docker_remap_user | awk -F':' '{print $2}'`
-            _subuid=`expr $_subuid + 1000`
-            _subgid=`expr $_subgid + 1000`
+            _subuid=`cat /etc/subuid | grep "$_docker_remap_user" | awk -F':' '{print $2}'`
+            _subgid=`cat /etc/subgid | grep "$_docker_remap_user" | awk -F':' '{print $2}'`
+            _subuid=`expr "$_subuid" + 1000`
+            _subgid=`expr "$_subgid" + 1000`
             _log=`echo "$_conf_dir/acl.log" | sed 's/\/\//\//g'`
-            getfacl -p $_world_path >> $_log
-            chmod 600 $_log
-            setfacl -m u:${_subuid}:rwx ${_world_path}
-            setfacl -m g:${_subgid}:rwx ${_world_path}
+            getfacl -p "$_world_path" >> "$_log"
+            chmod 600 "$_log"
+            setfacl -m u:"${_subuid}":rwx "${_world_path}"
+            setfacl -m g:"${_subgid}":rwx "${_world_path}"
         fi
     fi
 }
@@ -44,11 +44,11 @@ function __minecraftctl_conf_create_world() {
     _conf_dir=$3
 
     if [ ! -d "$_world_dir" ]; then
-        mkdir -p $_world_dir
+        mkdir -p "$_world_dir"
     fi
  
     # change owner of world
-    __minecraftctl_conf_create_is_remap $_world_dir $_conf_dir
+    __minecraftctl_conf_create_is_remap "$_world_dir" "$_conf_dir"
 }
 
 function __minecraftctl_conf_create() {
@@ -70,38 +70,38 @@ function __minecraftctl_conf_create() {
 
     _start_setup=0
     if [ ! -d "$_output_path" ]; then
-        mkdir -p $_output_path
+        mkdir -p "$_output_path"
         _start_setup=1
     fi
 
     _output_file="${_output_path}/server.env"
 
-    if [ -f $_output_file ]; then
+    if [ -f "$_output_file" ]; then
         local _time _name
         _time=$(date '+%Y%m%d_%H%M%S')
         _name="${_output_file}.${_time}"
         echo "rename server.env to ${_name}"
-        mv $_output_file $_name
+        mv "$_output_file" "$_name"
     fi
 
-    echo "SERVER_NAME=$_server_name" >> $_output_file
-    echo "IMAGE_NAME=$2" >> $_output_file
-    echo "PORT=$3" >> $_output_file
-    echo "MCVERSION=$4" >> $_output_file
-    echo "MCVENDER=mojang" >> $_output_file
-    echo "MCWORLD=$7/$_server_name" >> $_output_file
+    echo "SERVER_NAME=$_server_name" >> "$_output_file"
+    echo "IMAGE_NAME=$2" >> "$_output_file"
+    echo "PORT=$3" >> "$_output_file"
+    echo "MCVERSION=$4" >> "$_output_file"
+    echo "MCVENDER=mojang" >> "$_output_file"
+    echo "MCWORLD=$7/$_server_name" >> "$_output_file"
 
     _input_dir=$9
     _mcvol_name="mcctlvol_${_server_name}"
-    __minecraftctl_conf_create_world "$7/$_server_name" $_input_dir $_output_path
+    __minecraftctl_conf_create_world "$7/$_server_name" "$_input_dir" "$_output_path"
 
-    cat $_input_dir/volume.yml.temp | sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" > $_output_path/docker-volume.yml
+    cat "$_input_dir"/volume.yml.temp | sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" > "$_output_path"/docker-volume.yml
 
-    echo "MCCTLVOL=${_mcvol_name}" >> $_output_file
-    echo "VOLYML=$_output_path/docker-volume.yml" >> $_output_file
+    echo "MCCTLVOL=${_mcvol_name}" >> "$_output_file"
+    echo "VOLYML=$_output_path/docker-volume.yml" >> "$_output_file"
 
-    echo "MCMEMMS=$5" >> $_output_file
-    echo "MCMEMMX=$6" >> $_output_file
+    echo "MCMEMMS=$5" >> "$_output_file"
+    echo "MCMEMMX=$6" >> "$_output_file"
 
 }
 

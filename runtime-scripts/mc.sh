@@ -17,7 +17,7 @@ if [ ! -f "$EULA_FILE" ]; then
     if [ -f "$TEMP_EULA_FILE" ]; then
         cp $TEMP_EULA_FILE $EULA_FILE
         _write_eula="sed -e 's/{{\ DATE\ }}/$(date)/g' -i $EULA_FILE"
-        eval $_write_eula
+        eval "$_write_eula"
     else
         echo "file not found, \"$EULA_FILE\""
     fi
@@ -30,6 +30,6 @@ elif [ ! -d "${JAVA}" ]; then
 elif [ ! -f "${JAVA%/}/java" ]; then
     echo "[Error] Java binary file \"${JAVA%/}/java\" not found." | tee -a /opt/mcworld/minecraftctl.log
 else
-    java -Dlog4j2.formatMsgNoLookups=true -Xms${mc_mem_ms} -Xmx${mc_mem_mx} -jar ${MC_EXEC} nogui
+    java -Dlog4j2.formatMsgNoLookups=true -Xms"${mc_mem_ms}" -Xmx"${mc_mem_mx}" -jar "${MC_EXEC}" nogui
 fi
 
