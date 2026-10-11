@@ -11,6 +11,8 @@ function minecraftctl_sh() {
         exit 1
     fi
 
+    local _server_name _server_stat
+    _server_name=$1
     _server_stat=`docker ps --filter "name=$_server_name" --format "{{.Names}}"`
 
     if [ "$_server_stat" == "$_server_name" ]; then

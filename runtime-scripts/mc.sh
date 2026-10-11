@@ -1,5 +1,14 @@
 #!/bin/bash
 
+mc_version="${mc_version:-}"
+mc_vender="${mc_vender:-}"
+mc_mem_ms="${mc_mem_ms:-}"
+mc_mem_mx="${mc_mem_mx:-}"
+
+if [ -z "$mc_version" ] || [ -z "$mc_vender" ] || [ -z "$mc_mem_ms" ] || [ -z "$mc_mem_mx" ]; then
+    echo '[Error] Minecraft container configuration is incomplete.' | tee -a /opt/mcworld/minecraftctl.log
+    exit 1
+fi
 
 MC_JAVA=`grep "^${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}'`
 MC_VENDER=`grep "^${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}'`
