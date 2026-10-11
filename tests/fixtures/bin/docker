@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+printf 'docker %s\n' "$*" >> "${DOCKER_LOG:?DOCKER_LOG must be set}"
+
+if [[ ${1:-} == compose && ${2:-} == ls ]]; then
+    printf '%s\n' "${DOCKER_COMPOSE_LS_RESPONSE:-[]}"
+    exit 0
+fi
+
+if [[ ${1:-} == ps ]]; then
+    printf '%s\n' "${DOCKER_PS_RESPONSE:-}"
+    exit 0
+fi
+
+if [[ ${1:-} == volume && ${2:-} == inspect ]]; then
+    printf '[]\n'
+fi
+
