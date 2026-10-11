@@ -4,7 +4,7 @@
 function minecraftctl_buildimage() {
     # arg1: docker file direction.
 
-    local WORK_DIR DOCKERFILE_DIR REMAPUSER
+    local DOCKERFILE_DIR REMAPUSER
     DOCKERFILE_DIR=$1
 
     if [ ! -d "$1" ]; then
@@ -16,9 +16,9 @@ function minecraftctl_buildimage() {
         fi
         if [ "$REMAPUSER" == "" ]; then
             docker build -t minecraftctl_server:latest \
-                --build-arg USER=`whoami` \
-                --build-arg USERID=`id -u` \
-                --build-arg GROUPID=`id -g` "${DOCKERFILE_DIR}"
+                --build-arg "USER=$(whoami)" \
+                --build-arg "USERID=$(id -u)" \
+                --build-arg "GROUPID=$(id -g)" "${DOCKERFILE_DIR}"
         else
             docker build -t minecraftctl_server:latest \
                 --build-arg USER=minecraft \
@@ -27,4 +27,3 @@ function minecraftctl_buildimage() {
         fi
     fi
 }
-

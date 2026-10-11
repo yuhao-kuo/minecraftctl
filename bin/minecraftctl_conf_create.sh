@@ -84,12 +84,14 @@ function __minecraftctl_conf_create() {
         mv "$_output_file" "$_name"
     fi
 
-    echo "SERVER_NAME=$_server_name" >> "$_output_file"
-    echo "IMAGE_NAME=$2" >> "$_output_file"
-    echo "PORT=$3" >> "$_output_file"
-    echo "MCVERSION=$4" >> "$_output_file"
-    echo "MCVENDER=mojang" >> "$_output_file"
-    echo "MCWORLD=$7/$_server_name" >> "$_output_file"
+    {
+        echo "SERVER_NAME=$_server_name"
+        echo "IMAGE_NAME=$2"
+        echo "PORT=$3"
+        echo "MCVERSION=$4"
+        echo "MCVENDER=mojang"
+        echo "MCWORLD=$7/$_server_name"
+    } >> "$_output_file"
 
     _input_dir=$9
     _mcvol_name="mcctlvol_${_server_name}"
@@ -97,11 +99,11 @@ function __minecraftctl_conf_create() {
 
     cat "$_input_dir"/volume.yml.temp | sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" > "$_output_path"/docker-volume.yml
 
-    echo "MCCTLVOL=${_mcvol_name}" >> "$_output_file"
-    echo "VOLYML=$_output_path/docker-volume.yml" >> "$_output_file"
-
-    echo "MCMEMMS=$5" >> "$_output_file"
-    echo "MCMEMMX=$6" >> "$_output_file"
+    {
+        echo "MCCTLVOL=${_mcvol_name}"
+        echo "VOLYML=$_output_path/docker-volume.yml"
+        echo "MCMEMMS=$5"
+        echo "MCMEMMX=$6"
+    } >> "$_output_file"
 
 }
-
