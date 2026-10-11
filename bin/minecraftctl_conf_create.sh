@@ -10,7 +10,7 @@ function __minecraftctl_conf_create_is_remap() {
     _conf_dir=$2
     
     if [ -f "/etc/docker/daemon.json" ]; then
-        _docker_remap_user=`cat /etc/docker/daemon.json | grep '"userns-remap"' | sed s/\"//g | awk '{print $2}'`
+        _docker_remap_user=`grep '"userns-remap"' /etc/docker/daemon.json | sed s/\"//g | awk '{print $2}'`
 
         # change world account
         if [ "$_docker_remap_user" != "" ]; then
@@ -21,10 +21,10 @@ function __minecraftctl_conf_create_is_remap() {
             fi
 
             # add ACL for container user account
-            _subuid=`cat /etc/subuid | grep "$_docker_remap_user" | awk -F':' '{print $2}'`
-            _subgid=`cat /etc/subgid | grep "$_docker_remap_user" | awk -F':' '{print $2}'`
-            _subuid=`expr "$_subuid" + 1000`
-            _subgid=`expr "$_subgid" + 1000`
+            _subuid=`grep "$_docker_remap_user" /etc/subuid | awk -F':' '{print $2}'`
+            _subgid=`grep "$_docker_remap_user" /etc/subgid | awk -F':' '{print $2}'`
+            _subuid=$((_subuid + 1000))
+            _subgid=$((_subgid + 1000))
             _log=`echo "$_conf_dir/acl.log" | sed 's/\/\//\//g'`
             getfacl -p "$_world_path" >> "$_log"
             chmod 600 "$_log"
@@ -97,7 +97,7 @@ function __minecraftctl_conf_create() {
     _mcvol_name="mcctlvol_${_server_name}"
     __minecraftctl_conf_create_world "$7/$_server_name" "$_input_dir" "$_output_path"
 
-    cat "$_input_dir"/volume.yml.temp | sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" > "$_output_path"/docker-volume.yml
+    sed "s/{{\ MCCTLVOL\ }}/${_mcvol_name}/g" "$_input_dir"/volume.yml.temp > "$_output_path"/docker-volume.yml
 
     {
         echo "MCCTLVOL=${_mcvol_name}"

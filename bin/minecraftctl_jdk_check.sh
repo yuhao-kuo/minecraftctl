@@ -14,13 +14,13 @@ function __minecraftctl_check_server_jdk_depend() {
         return $_failed
     fi
 
-    _script=`cat "${_conf}"/env/exec.env | grep '^MINECRAFTCTL_SCRIPTPATH=' | cut -d '=' -f 2`
+    _script=`grep '^MINECRAFTCTL_SCRIPTPATH=' "${_conf}"/env/exec.env | cut -d '=' -f 2`
 
     if [ ! -f "${_script}/server_version.conf" ]; then
         echo "[Error] server_version.conf not found, on path: \"${_script}\""
         return $_failed
     fi
-    _version_check=`cat "${_script}"/server_version.conf | grep "^${_jdk_version}" | cut -d '=' -f 2`
+    _version_check=`grep "^${_jdk_version}" "${_script}"/server_version.conf | cut -d '=' -f 2`
 
     if [ "${_version_check}" == "" ]; then
         echo "[Error] server config not defined JDK version."
@@ -28,7 +28,7 @@ function __minecraftctl_check_server_jdk_depend() {
     fi
 
     local _jdk_dir
-    _jdk_dir=`cat "${_conf}"/env/exec.env | grep '^MINECRAFTCTL_JDKPATH=' | cut -d '=' -f 2`
+    _jdk_dir=`grep '^MINECRAFTCTL_JDKPATH=' "${_conf}"/env/exec.env | cut -d '=' -f 2`
     if [ ! -d "${_jdk_dir}" ]; then
         echo "[Error] JDK path not found: ${_jdk_dir}"
         return $_failed
