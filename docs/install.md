@@ -1,4 +1,4 @@
-# Setup guide
+# Installation, security, and upgrade guide
 
 `setup.sh` installs `minecraftctl`, writes its configuration, registers shell
 completion, and builds the Docker image. Run it from the repository root:
@@ -27,6 +27,29 @@ installing user.
 
 Setup appends to the profile on every run; remove duplicates manually if you
 install again.
+
+## EULA acceptance and security notice
+
+> **Security notice:** `minecraftctl` is intended for a trusted, single-host
+> Docker environment. Anyone who can control the host account, its Docker
+> daemon, or the server world directory can control the Minecraft server and
+> read or modify its data.
+
+Creating a server automatically creates `eula.txt` with `eula=true`. Before
+you run `minecraftctl create` or `minecraftctl import`, you must read and
+accept the [Minecraft EULA](https://aka.ms/MinecraftEULA). Do not use the tool
+if you do not agree to its terms.
+
+RCON is enabled during server initialization so that `exec`, `save`, `users`,
+and `msg` can work. The supplied Compose configuration does not publish the
+RCON port (`25575`) to the host, and it must remain that way unless you replace
+the RCON credentials and deliberately secure network access. Do not expose
+RCON directly to an untrusted network.
+
+The Minecraft game port is published on the host port passed to `create` or
+`import`. Choose a port that is not already in use and protect the host with
+the appropriate firewall rules. Treat world directories, service directories,
+JDKs, server jars, and the Docker socket as privileged local resources.
 
 ## Directory trees
 
@@ -126,9 +149,8 @@ Trailing slashes are removed. Defaults below are shown relative to
 Notes:
 
 - `MINECRAFTCTL_DEFAULT_IMAGE` only changes the name written to the
-  configuration. `minecraftctl buildimage` and setup always build and tag
-  `minecraftctl_server:latest`, so keep the default unless you build the
-  image yourself.
+  configuration. Setup always builds and tags `minecraftctl_server:latest`,
+  so keep the default unless you build a matching image yourself.
 - Only `MINECRAFTCTL_BIN`, `MINECRAFTCTL_VAR`, `MINECRAFTCTL_CONF`,
   `MINECRAFTCTL_DEFAULT_IMAGE`, `MINECRAFTCTL_DEFAULT_WORLD` and
   `MINECRAFTCTL_COMPGENPATH` are written to `minecraftctl.conf`.
@@ -181,3 +203,39 @@ minecraftctl ls
 ```
 
 Next, see the [command reference](commands.md) to create a server.
+
+## Updating or reinstalling
+
+`setup.sh` is an installer, not an in-place updater. It stops when most target
+directories already exist, and it appends shell-profile entries. Do **not**
+rerun it over an existing installation in an attempt to upgrade it.
+
+Before any update or reinstall, create a backup using the
+[backup, recovery, and migration guide](backup-recovery-migration.md). In
+particular, keep the server worlds, service settings, Minecraft jars, JDKs,
+and a copy of the installed configuration.
+
+### Recommended update procedure
+
+1. Stop each server and make a verified backup.
+2. Obtain the new project revision in a separate checkout.
+3. Install it to a new, empty `BASEROOT` (or a new set of explicitly supplied
+   installation paths).
+4. Add the required JDK directories and server jars to the new installation.
+5. Follow the migration procedure to create servers on the new installation
+   and restore their worlds.
+6. Start and verify every server before retiring the old installation.
+
+This approach keeps the old installation intact for rollback. When the new
+installation is verified, remove the old profile entries manually and archive
+or remove the old files only after confirming that all world backups are
+usable.
+
+### Reinstalling after an interrupted installation
+
+If setup failed before the image was built, inspect the paths it created before
+retrying. Either remove only the incomplete, empty installation directories or
+choose a new empty `BASEROOT`; do not delete a directory that may contain a
+world. If setup reached the profile-update step, remove duplicate
+`MINECRAFTCTL_CONF_FILE` exports and completion `source` lines before trying
+again.

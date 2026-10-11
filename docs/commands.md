@@ -199,3 +199,12 @@ Without `relative-path`, the command opens
 relative to `/opt/mcworld`; absolute paths and paths that escape this
 directory (such as `../...`) are rejected. The server must be running because
 the editor runs inside its container.
+
+## Related operational guides
+
+- [Server defaults and configuration](server-configuration.md) explains the
+  generated service settings and supported configuration workflow.
+- [Backup, recovery, and migration](backup-recovery-migration.md) describes
+  how to protect world data before removal, replacement, or host migration.
+- [Troubleshooting](troubleshooting.md) covers installation, container, and
+  runtime failures.

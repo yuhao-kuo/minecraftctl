@@ -7,7 +7,7 @@ on the host before a server of that version can start:
 2. a line in `server_version.conf` that maps the version to a JDK, and that
    JDK installed in `MINECRAFTCTL_JDKPATH`.
 
-The paths are defined during [setup](setup.md). Load them in your shell to use
+The paths are defined during [installation](install.md). Load them in your shell to use
 the commands below:
 
 ```bash
@@ -101,17 +101,16 @@ installation. Therefore:
 
 Do not use the same path for both; verify with `echo "$MINECRAFTCTL_SCRIPTPATH"`.
 
-### Version lookup is a substring match
+### Version lookup uses a regular expression
 
-`mc.sh` finds the version with `grep "<version>="`, which is not anchored and
-treats `.` as any character. A version that is the tail of another entry also
-matches that entry (for example `1.1=` matches `1.11.1=`), which produces
-more than one JDK name and prevents the server from starting. In the current
-table this affects `1.1`, `1.5`, `1.8`, `1.9`, `1.10` and `1.11`. When adding
-a version, check that it does not end another existing line:
+`mc.sh` looks up the version from the beginning of a line with
+`grep "^<version>="`. Therefore, a version is not matched merely because it
+is the tail of another version. However, the version is interpolated into a
+regular expression, so `.` is treated as a wildcard. Keep each version unique
+and confirm that the intended entry is the only matching line:
 
 ```bash
-grep -c "26.5=" "${MINECRAFTCTL_SCRIPTPATH}/server_version.conf"   # must print 1 after adding
+grep -Ec '^26\.5=' "${MINECRAFTCTL_SCRIPTPATH}/server_version.conf" # must print 1 after adding
 ```
 
 ## 4. Create and verify a server
@@ -148,4 +147,4 @@ minecraftctl start my-server
 - [ ] `minecraft_server_v<version>.jar` is in `MINECRAFTCTL_SERVERPATH`.
 - [ ] A JDK with `bin/java` is in `MINECRAFTCTL_JDKPATH`.
 - [ ] `<version>=<jdk-directory>` is in the installed `server_version.conf`.
-- [ ] The version appears exactly once and is not the tail of another entry.
+- [ ] The version appears exactly once and is checked as an exact version.
