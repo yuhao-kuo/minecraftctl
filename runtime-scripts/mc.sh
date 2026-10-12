@@ -1,14 +1,26 @@
 #!/bin/bash
 
+mc_version="${mc_version:-}"
+mc_vender="${mc_vender:-}"
+mc_mem_ms="${mc_mem_ms:-}"
+mc_mem_mx="${mc_mem_mx:-}"
 
-MC_JAVA=`grep "^${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}'`
-MC_VENDER=`grep "^${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}'`
+if [ -z "$mc_version" ] || [ -z "$mc_vender" ] || [ -z "$mc_mem_ms" ] || [ -z "$mc_mem_mx" ]; then
+    echo '[Error] Minecraft container configuration is incomplete.' | tee -a /opt/mcworld/minecraftctl.log
+    exit 1
+fi
+
+MC_JAVA=$(grep "^${mc_version}=" /opt/mc.conf/server_version.conf | awk -F'=' '{print $2}')
+MC_VENDER=$(grep "^${mc_vender}=" /opt/mc.conf/venders.conf | awk -F'=' '{print $2}')
 JAVA=/opt/java/${MC_JAVA}/bin
 export PATH=${PATH}:${JAVA}
 
 MC_EXEC=/opt/mcserver/${MC_VENDER}_v${mc_version}.jar
 
-cd /opt/mcworld
+if ! cd /opt/mcworld; then
+    echo '[Error] Minecraft world directory "/opt/mcworld" is not accessible.' | tee -a /opt/mcworld/minecraftctl.log
+    exit 1
+fi
 
 EULA_FILE=/opt/mcworld/eula.txt
 TEMP_EULA_FILE=/opt/mc.conf/eula_temp.txt
@@ -17,7 +29,7 @@ if [ ! -f "$EULA_FILE" ]; then
     if [ -f "$TEMP_EULA_FILE" ]; then
         cp $TEMP_EULA_FILE $EULA_FILE
         _write_eula="sed -e 's/{{\ DATE\ }}/$(date)/g' -i $EULA_FILE"
-        eval $_write_eula
+        eval "$_write_eula"
     else
         echo "file not found, \"$EULA_FILE\""
     fi
@@ -30,6 +42,5 @@ elif [ ! -d "${JAVA}" ]; then
 elif [ ! -f "${JAVA%/}/java" ]; then
     echo "[Error] Java binary file \"${JAVA%/}/java\" not found." | tee -a /opt/mcworld/minecraftctl.log
 else
-    java -Dlog4j2.formatMsgNoLookups=true -Xms${mc_mem_ms} -Xmx${mc_mem_mx} -jar ${MC_EXEC} nogui
+    java -Dlog4j2.formatMsgNoLookups=true -Xms"${mc_mem_ms}" -Xmx"${mc_mem_mx}" -jar "${MC_EXEC}" nogui
 fi
-

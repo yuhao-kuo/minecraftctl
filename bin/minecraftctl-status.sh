@@ -1,7 +1,7 @@
-
 #!/bin/bash
 
-source ${MINECRAFTCTL_BIN}/minecraftctl_sh_exec.sh
+# shellcheck source=bin/minecraftctl_sh_exec.sh
+source "${MINECRAFTCTL_BIN}"/minecraftctl_sh_exec.sh
 
 function minecraftctl_status() {
     # arg1: server name

@@ -14,17 +14,17 @@ function __minecraftctl_remove_service_check() {
         return $_failed
     fi
 
-    _compose_is_exist=`docker compose ls -a --filter "name=${_service_name}" --format json`
+    _compose_is_exist=$(docker compose ls -a --filter "name=${_service_name}" --format json)
     if [ "$_compose_is_exist" == "[]" ]; then
         return $_not_found
     fi
 
-    _containers=`minecraftctl ps | grep ${_service_name}`
+    _containers=$(minecraftctl ps | grep "${_service_name}")
     while IFS= read -r line; do
-        _container_check=`echo $line | awk '{print $2}'`
+        _container_check=$(echo "$line" | awk '{print $2}')
         if [ "${_container_check}" == "${_service_name}" ]; then
             local _runtime
-            _runtime=`echo $line | awk '{print $3}'`
+            _runtime=$(echo "$line" | awk '{print $3}')
             if [ "${_runtime}" == "Up" ]; then
                 return $_is_running
             fi
@@ -49,13 +49,13 @@ function __minecraftctl_remove_volume() {
 
     # remove volume
     _volume="mcctlvol_${_service_name}"
-    _check_volume_exist=`docker volume inspect ${_volume} 2> /dev/null`
+    _check_volume_exist=$(docker volume inspect "${_volume}" 2> /dev/null)
     if [ "${_check_volume_exist}" != "[]" ]; then
-        docker volume rm ${_volume}
+        docker volume rm "${_volume}"
     fi
     
     # check volume and retrun
-    _check_volume_exist=`docker volume inspect ${_volume} 2> /dev/null`
+    _check_volume_exist=$(docker volume inspect "${_volume}" 2> /dev/null)
     if [ "${_check_volume_exist}" != "[]" ]; then
         return $_failed
     fi
@@ -76,7 +76,7 @@ function __minecraftctl_remove_world_directory() {
     fi
 
     _default_world=$MINECRAFTCTL_DEFAULT_WORLD
-    _world_dir=`echo "${_default_world}/${_service_name}" | sed 's/\/\//\//g'`
+    _world_dir=$(echo "${_default_world}/${_service_name}" | sed 's/\/\//\//g')
 
     if [ -d "${_world_dir}" ]; then
         rm -rf "${_world_dir}"
@@ -100,7 +100,7 @@ function __minecraftctl_remove_service_directory() {
     fi
 
     _var=$MINECRAFTCTL_VAR
-    _service_dir=`echo "${_var}/${_service_name}" | sed 's/\/\//\//g'`
+    _service_dir=$(echo "${_var}/${_service_name}" | sed 's/\/\//\//g')
 
     if [ -d "${_service_dir}" ]; then
         rm -rf "${_service_dir}"
@@ -116,7 +116,7 @@ function __minecraftctl_remove_service() {
     _service_name=$1
     if [ "${_service_name}" == "" ]; then
         echo "[Error] service name is empty."
-        return $_failed
+        return "$_failed"
     fi
 
     local _conf _var
@@ -127,16 +127,16 @@ function __minecraftctl_remove_service() {
     _failed=1
 
     local _docker_main_yml _docker_volume_yml _exec_env _server_env
-    _docker_main_yml=`echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g'`
-    _docker_volume_yml=`echo "${_var}/${_service_name}/docker-volume.yml" | sed 's/\/\//\//g'`
-    _exec_env=`echo "${_conf}/env/exec.env" | sed 's/\/\//\//g'`
-    _server_env=`echo "${_var}/${_service_name}/server.env" | sed 's/\/\//\//g'`
+    _docker_main_yml=$(echo "${_conf}/env/docker-compose.yml" | sed 's/\/\//\//g')
+    _docker_volume_yml=$(echo "${_var}/${_service_name}/docker-volume.yml" | sed 's/\/\//\//g')
+    _exec_env=$(echo "${_conf}/env/exec.env" | sed 's/\/\//\//g')
+    _server_env=$(echo "${_var}/${_service_name}/server.env" | sed 's/\/\//\//g')
 
     # remove container
-    docker compose --file ${_docker_main_yml} --file ${_docker_volume_yml} --env-file ${_exec_env} --env-file ${_server_env} --project-name "mc_container_${_service_name}" down
+    docker compose --file "${_docker_main_yml}" --file "${_docker_volume_yml}" --env-file "${_exec_env}" --env-file "${_server_env}" --project-name "mc_container_${_service_name}" down
 
     # container status report
-    _check_result=`docker compose ls -a --filter "name=${_service_name}" --format json`
+    _check_result=$(docker compose ls -a --filter "name=${_service_name}" --format json)
     if [ "${_check_result}" == "[]" ]; then
         return $_success
     else
@@ -161,7 +161,7 @@ function minecraftctl_remove() {
 
     # feedback for user to confirm drop a world
     while true; do
-        read -p "Do you want to continue? (y/n): " choice
+        read -r -p "Do you want to continue? (y/n): " choice
         case "$choice" in
             [yY] )
                 break
@@ -176,8 +176,10 @@ function minecraftctl_remove() {
         esac
     done
 
-    source ${MINECRAFTCTL_CONF_FILE}
-    source ${MINECRAFTCTL_BIN}/minecraftctl_check_server_exist.sh
+    # shellcheck disable=SC1090
+    source "${MINECRAFTCTL_CONF_FILE}"
+    # shellcheck source=bin/minecraftctl_check_server_exist.sh
+    source "${MINECRAFTCTL_BIN}"/minecraftctl_check_server_exist.sh
     
     local _check=$_success
 
@@ -188,7 +190,7 @@ function minecraftctl_remove() {
     fi
 
     # check server is running
-    __minecraftctl_remove_service_check ${_service_name} || _check=$?
+    __minecraftctl_remove_service_check "${_service_name}" || _check=$?
     if [ ${_check} -eq ${_is_running} ]; then
         echo "[Info] Server \"${_service_name}\" is running, stopped."
         return $_failed
@@ -201,23 +203,23 @@ function minecraftctl_remove() {
     fi
 
     # drop service
-    __minecraftctl_remove_service ${_service_name} || _check=$_failed
+    __minecraftctl_remove_service "${_service_name}" || _check=$_failed
     if [ ${_check} -eq ${_failed} ]; then
         echo "[Error] Remove Server \"${_service_name}\" failed."
         return $_failed
     fi
 
     # remove the service volume
-    __minecraftctl_remove_volume ${_service_name} || _check=$_failed
+    __minecraftctl_remove_volume "${_service_name}" || _check=$_failed
     if [ ${_check} -eq ${_failed} ]; then
         echo "[Error] Remove \"${_service_name}\" volume failed."
         return $_failed
     fi
 
     # remove the world directory
-    __minecraftctl_remove_world_directory ${_service_name} || return $_failed
+    __minecraftctl_remove_world_directory "${_service_name}" || return $_failed
     # remote the service directory
-    __minecraftctl_remove_service_directory ${_service_name} || return $_failed
+    __minecraftctl_remove_service_directory "${_service_name}" || return $_failed
 
     return $_success
 }

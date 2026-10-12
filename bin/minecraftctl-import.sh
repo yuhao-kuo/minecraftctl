@@ -47,11 +47,7 @@ function minecraftctl_import() {
     _version=$3
     _import_path=$4
 
-    source ${_bin}/minecraftctl_jdk_check.sh
-
-    __minecraftctl_jdk_check $_version || return 1
-
-    __minecraftctl_import_naming_rules_check $_server_name
+    __minecraftctl_import_naming_rules_check "$_server_name"
 
     if [ -d "$_import_path" ]; then
         _conf=$MINECRAFTCTL_CONF
@@ -60,21 +56,29 @@ function minecraftctl_import() {
         _default_world=$MINECRAFTCTL_DEFAULT_WORLD
         _default_image=$MINECRAFTCTL_DEFAULT_IMAGE
 
+        # shellcheck source=bin/minecraftctl_jdk_check.sh
+        source "${_bin}"/minecraftctl_jdk_check.sh
+        __minecraftctl_jdk_check "$_version" || return 1
+
         # check server
-        source ${_bin}/minecraftctl_check_server_exist.sh
+        # shellcheck source=bin/minecraftctl_check_server_exist.sh
+        source "${_bin}"/minecraftctl_check_server_exist.sh
         __minecraftctl_check_server_exist "$_server_name" || return $_failed
      
         # create config to conf/
-        source ${_bin}/minecraftctl_conf_create.sh
-        __minecraftctl_conf_create ${_server_name} ${_default_image} ${_port} ${_version} 4G 20G ${_default_world} ${_var} ${_conf}/templates
+        # shellcheck source=bin/minecraftctl_conf_create.sh
+        source "${_bin}"/minecraftctl_conf_create.sh
+        __minecraftctl_conf_create "${_server_name}" "${_default_image}" "${_port}" "${_version}" 4G 20G "${_default_world}" "${_var}" "${_conf}"/templates
      
         # import world to container
-        source ${_bin}/minecraftctl_data_utils.sh
-        __minecraftctl_data_copy ${_server_name} ${_conf} ${_var} H2C ${_import_path} /opt/mcworld
+        # shellcheck source=bin/minecraftctl_data_utils.sh
+        source "${_bin}"/minecraftctl_data_utils.sh
+        __minecraftctl_data_copy "${_server_name}" "${_conf}" "${_var}" H2C "${_import_path}" /opt/mcworld
      
         # init world setting
-        source ${_bin}/minecraftctl_init.sh
-        __minecraftctl_init $_server_name $_conf $_var FALSE || return 1
+        # shellcheck source=bin/minecraftctl_init.sh
+        source "${_bin}"/minecraftctl_init.sh
+        __minecraftctl_init "$_server_name" "$_conf" "$_var" FALSE || return 1
 
         return $_success
 
@@ -85,4 +89,3 @@ function minecraftctl_import() {
     return $_failed
 
 }
-
